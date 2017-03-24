@@ -1,10 +1,11 @@
 package com.personal.beertaster.algorithms;
 
-import com.personal.beertaster.elements.Beer;
 import com.personal.beertaster.elements.Brewery;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 import java.util.stream.IntStream;
 
 public class Tour {
@@ -82,7 +83,7 @@ public class Tour {
     // Gets the tours fitness
     public double getFitness() {
         if (fitness == 0) {
-            fitness = 1 / (double) getDistance();
+            fitness = 1D / getDistance();
         }
         return fitness;
     }
@@ -129,13 +130,14 @@ public class Tour {
         sb.append(System.lineSeparator());
         sb.append(System.lineSeparator());
         sb.append(String.format("Collected %s beer types:", tour.stream().mapToInt(Brewery::getBeerCount).sum()));
-        for (Brewery brew : tour) {
-            if (brew == null || brew.getBeerList() == null) continue;
-            for (Beer beer : brew.getBeerList()) {
-                sb.append(System.lineSeparator());
-                sb.append("\t" + beer.toString());
-            }
-        }
+        tour.stream()
+                .map(Brewery::getBeerList)
+                .filter(Objects::nonNull)
+                .flatMap(List::stream)
+                .forEach(beer -> {
+                    sb.append(System.lineSeparator());
+                    sb.append("\t" + beer.toString());
+                });
         sb.append(System.lineSeparator());
 
         return sb.toString();
