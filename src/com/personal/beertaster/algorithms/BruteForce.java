@@ -4,64 +4,73 @@
 
 package com.personal.beertaster.algorithms;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.personal.beertaster.elements.Brewery;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static com.personal.beertaster.algorithms.BreweryManager.*;
+import static java.util.Comparator.comparing;
+
 public class BruteForce {
-	
-	private static int counter;
 
-	public static Tour planBruteForce() {
-		Tour bestTour = new Tour();
-		List<Brewery> possibleBreweries = new ArrayList<>(BreweryManager.getPossibleBreweries());
-		possibleBreweries.remove(BreweryManager.ORIGIN);
-		counter = 0;
-		System.out.println("Total possible breweries - "+possibleBreweries.size());
-		
-		bestTour.addBrewery(BreweryManager.ORIGIN);
-		recursivePlanner(bestTour, bestTour, possibleBreweries);
-		
-		System.out.println(String.format("Checked %s routes", counter));
-		
-		
-		return bestTour;
-	}
-	
-	private static Tour recursivePlanner(Tour bestTour, Tour currentTour, List<Brewery> possibleBreweries) {
-		List<Brewery> tempPossibleBreweries = new ArrayList<>(possibleBreweries);
-		Brewery currentBrewery = currentTour.getBrewery(currentTour.tourSize()-1);
-		double currentTotalDistance = currentTour.getDistance();
-		boolean noNewBreweries = true;
-		
-		for(int i = 0; i < tempPossibleBreweries.size();) {
-			Brewery nextInTour = tempPossibleBreweries.get(i);
-			double dist = BreweryManager.getDistanceBetween(currentBrewery, nextInTour);
-			double distToHome = BreweryManager.getDistanceBetween(BreweryManager.ORIGIN, nextInTour);
-			
-			if (currentTotalDistance+dist+distToHome <= BreweryManager.TRAVEL_DISTANCE) {
-				noNewBreweries = false;
-				Tour newCurrentTour = new Tour(currentTour);
-				newCurrentTour.addBrewery(nextInTour);
-				tempPossibleBreweries.remove(nextInTour);
-				
-				recursivePlanner(bestTour, newCurrentTour, tempPossibleBreweries);			
-			} else {
-				 i++;
-			}
-		}
+    private static final int BREWERIES_COUNT_CHECK = 2;
+    private static int counter;
 
-		if (noNewBreweries) {
-			counter++;
-			currentTour.addBrewery(BreweryManager.ORIGIN);
+    public static Tour planBruteForce() {
+        final List<Brewery> possibleBreweries = getPossibleBreweries().stream()
+                .filter(Brewery::containsBeer)
+                .collect(Collectors.toList());
+        System.out.println("Total possible breweries - " + possibleBreweries.size());
 
-			if (bestTour.getBeerCount() < currentTour.getBeerCount()) {
-				bestTour.setTour(currentTour);
-				System.out.println(String.format("[%s] Found new best route: %s factories; %s beers; %.1fkm;", counter, currentTour.tourSize()-2, currentTour.getBeerCount(), currentTour.getDistance()));
-			}
-		}
-        
-		return bestTour;
-	}
+        final Tour bestTour = new Tour();
+        bestTour.addBrewery(ORIGIN);
+
+        recursivePlanner(bestTour, bestTour, possibleBreweries);
+
+        System.out.println(String.format("Checked %s routes", counter));
+
+
+        return bestTour;
+    }
+
+    private static Tour recursivePlanner(final Tour bestTour, final Tour currentTour, final List<Brewery> possibleBreweries) {
+        final Brewery currentBrewery = currentTour.getBrewery(currentTour.tourSize() - 1);
+
+        final Tour possibleBestTour = possibleBreweries.stream()
+                .filter(brewery -> !currentTour.breweries().contains(brewery))
+                .filter(currentTour::possibleToInsert)
+                .sorted(comparing(brewery -> distanceBetween(brewery, currentBrewery) / brewery.getBeerCount()))
+                .limit(BREWERIES_COUNT_CHECK)
+                .map(brewery -> recursivePlanner(
+                        bestTour,
+                        currentTour.withBrewery(brewery),
+                        without(brewery, possibleBreweries)
+                )).max(Comparator.comparing(Tour::getBeerCount))
+                .orElse(currentTour);
+        possibleBestTour.addBrewery(ORIGIN);
+        counter++;
+
+        if (bestTour.getBeerCount() < possibleBestTour.getBeerCount()) {
+            bestTour.setTour(possibleBestTour);
+            System.out.println(String.format(
+                    "[%s] Found new best route: %s factories; %s beers; %.1fkm;",
+                    counter,
+                    possibleBestTour.tourSize() - 2,
+                    possibleBestTour.getBeerCount(),
+                    possibleBestTour.getDistance()
+            ));
+        }
+
+        return possibleBestTour;
+    }
+
+    private static List<Brewery> without(final Brewery brewery, final List<Brewery> list) {
+        final List<Brewery> newList = new ArrayList<>(list);
+        newList.remove(brewery);
+
+        return newList;
+    }
 }
