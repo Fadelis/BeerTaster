@@ -60,12 +60,16 @@ public class Tour {
         return breweries.get(tourPosition);
     }
 
-    // Sets a brewery in a certain position within a tour
     public void setBrewery(final int tourPosition, final Brewery brewery) {
         breweries.set(tourPosition, brewery);
-        // If the tours been altered we need to reset the fitness and distance
         distance = 0;
         beerCount = 0;
+    }
+
+    public Tour insertAt(final int tourPosition, final Brewery brewery) {
+        final Tour newTour = new Tour(this);
+        newTour.breweries.add(tourPosition, brewery);
+        return newTour;
     }
 
     public List<Brewery> breweries() {
@@ -87,6 +91,16 @@ public class Tour {
             beerCount = breweries.stream().mapToInt(Brewery::getBeerCount).sum();
         }
         return beerCount;
+    }
+
+    public boolean isBetterThan(final Tour maybeBetterTour) {
+        final double distance = getDistance();
+        final double newDistance = maybeBetterTour.getDistance();
+        final int beerCount = getBeerCount();
+        final int newBeerCount = maybeBetterTour.getBeerCount();
+
+        return distance > newDistance ||
+                (newBeerCount > beerCount && newDistance <= BreweryManager.TRAVEL_DISTANCE);
     }
 
     public int tourSize() {

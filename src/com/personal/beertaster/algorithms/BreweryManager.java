@@ -4,8 +4,7 @@ import com.personal.beertaster.elements.Brewery;
 import com.personal.beertaster.utilities.Converter;
 
 import java.util.*;
-
-import static java.util.Comparator.comparing;
+import java.util.stream.Collectors;
 
 public class BreweryManager {
 
@@ -62,16 +61,13 @@ public class BreweryManager {
 
         if (possibleBreweries == null) possibleBreweries = new ArrayList<>();
 
-//		List<Brewery> possibleBreweries = breweryList.stream().filter(brewery -> brewery.getDistance(ORIGIN) < TRAVEL_DISTANCE/2).collect(Collectors.toList());
-
         possibleBreweries.clear();
-        final int size = breweryList.size();
-        for (int j = 0; j < size; j++) {
-            //Dividing by 2 because we need to go back after the visit
-            if (distanceMatrix[0][j] < TRAVEL_DISTANCE / 2) {
-                possibleBreweries.add(breweryList.get(j));
-            }
-        }
+        possibleBreweries.addAll(
+                breweryList.stream()
+                        .filter(Brewery::containsBeer)
+                        .filter(brewery -> distanceToOrigin(brewery) < TRAVEL_DISTANCE / 2)
+                        .collect(Collectors.toList())
+        );
 
         final long total = System.currentTimeMillis() - start;
         System.out.println("Possible breweries in " + total + " ms");
@@ -109,10 +105,6 @@ public class BreweryManager {
     public static double distanceBetween(final Brewery brew1, final Brewery brew2) {
         if (brew1 == null || brew2 == null) return Double.MAX_VALUE;
 
-//        final int index1 = breweryList.indexOf(brew1);
-//        final int index2 = breweryList.indexOf(brew2);
-//
-//        return distanceMatrix[index1][index2];
         return distanceMatrix[breweryMap.get(brew1)][breweryMap.get(brew2)];
     }
 
@@ -132,38 +124,14 @@ public class BreweryManager {
         return Collections.unmodifiableList(breweryList);
     }
 
-    public static Brewery getBrewery(final int index) {
-        if (index >= getBreweryNumber()) return null;
-        return breweryList.get(index);
-    }
-
     public static int getBreweryNumber() {
         return breweryList.size();
     }
-
 
     /**
      * @return Unmodifiable list of breweries that are possible to visit with the given travel distance
      */
     public static List<Brewery> getPossibleBreweries() {
         return Collections.unmodifiableList(possibleBreweries);
-    }
-
-    /**
-     * Find best fitting neighbour, which yields most beer per traveled kilometer.
-     */
-    public static Optional<Brewery> findBestNeighbour(
-            final Brewery brewery,
-            final Tour currentTour
-    ) {
-        if (brewery == null) {
-            return Optional.empty();
-        }
-
-        return possibleBreweries.stream()
-                .filter(Brewery::containsBeer)
-                .filter(brew -> !currentTour.breweries().contains(brew))
-                .filter(currentTour::possibleToInsert)
-                .max(comparing(brew -> brew.getBeerCount() / distanceBetween(brewery, brew)));
     }
 }

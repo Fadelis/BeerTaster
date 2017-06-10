@@ -23,19 +23,18 @@ import static java.util.Comparator.comparing;
 
 public class AdvancedNNA {
 
-    private static final int LOOK_AHEAD = 0;
+    private static final int LOOK_AHEAD = 2;
 
     public static Tour planAdvancedNNA() {
-        final Tour tour = new Tour();
         final List<Brewery> possibleBreweries = BreweryManager.getPossibleBreweries().stream()
                 .filter(Brewery::containsBeer)
                 .collect(Collectors.toList());
         System.out.println("Total possible breweries - " + possibleBreweries.size());
 
+        final Tour tour = new Tour();
         tour.addBrewery(ORIGIN);
-        double totalDistance = 0;
 
-        while (totalDistance <= TRAVEL_DISTANCE) {
+        while (true) {
             final Brewery bestCandidate = possibleBreweries.stream()
                     .map(brewery -> new SimpleEntry<>(brewery, lookAheadTour(brewery, tour)))
                     .filter(entry -> Objects.nonNull(entry.getValue()))
@@ -44,7 +43,6 @@ public class AdvancedNNA {
                     .orElse(ORIGIN);
 
             tour.addBrewery(bestCandidate);
-            totalDistance = tour.getDistance();
             possibleBreweries.remove(bestCandidate);
 
             if (Objects.equals(bestCandidate, ORIGIN)) {
@@ -76,5 +74,23 @@ public class AdvancedNNA {
         }
 
         return lookAheadTour;
+    }
+
+    /**
+     * Find best fitting neighbour, which yields most beer per traveled kilometer.
+     */
+    public static Optional<Brewery> findBestNeighbour(
+            final Brewery brewery,
+            final Tour currentTour
+    ) {
+        if (brewery == null) {
+            return Optional.empty();
+        }
+
+        return getPossibleBreweries().stream()
+                .filter(Brewery::containsBeer)
+                .filter(brew -> !currentTour.breweries().contains(brew))
+                .filter(currentTour::possibleToInsert)
+                .max(comparing(brew -> brew.getBeerCount() / distanceBetween(brewery, brew)));
     }
 }

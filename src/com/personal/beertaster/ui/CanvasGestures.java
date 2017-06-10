@@ -1,5 +1,6 @@
 package com.personal.beertaster.ui;
 
+import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.event.EventHandler;
 import javafx.geometry.BoundingBox;
@@ -18,7 +19,7 @@ import javafx.scene.transform.Scale;
  */
 public class CanvasGestures {
 
-    public static final double MAX_SCALE = 40.0D;
+    public static final double MAX_SCALE = 1000.0D;
     public static final double MIN_SCALE = 0.01D;
 
     private final CanvasPanel panel;
@@ -92,11 +93,11 @@ public class CanvasGestures {
      * @param y
      */
     public void zoom(Node node, double factor, double x, double y) {
-        double oldScale = this.scale.doubleValue();
+        double oldScale = getScale();
         double scale = oldScale * factor;
         if (scale < MIN_SCALE) scale = MIN_SCALE;
         if (scale > MAX_SCALE) scale = MAX_SCALE;
-        this.scale.set(scale);
+        setScale(scale);
 
         double f = (scale / oldScale) - 1;
 
@@ -131,7 +132,7 @@ public class CanvasGestures {
         zoom(node, event.getZoomFactor(), event.getSceneX(), event.getSceneY());
     }
 
-    private void scaleElementSize() {
+    void scaleElementSize() {
         canvas.getChildren().forEach(group -> {
             if (group instanceof Group) {
                 ((Group) group).getChildren().forEach(node -> {
@@ -147,10 +148,23 @@ public class CanvasGestures {
     }
 
     private void reset() {
-        this.scale.set(1D);
+        setScale(1D);
         this.canvas.setTranslateX(0D);
         this.canvas.setTranslateY(0D);
 
         scaleElementSize();
+    }
+
+    public void setScale(double scale) {
+        this.scale.set(scale);
+        //this.panel.scale();
+    }
+
+    public double getScale() {
+        return this.scale.get();
+    }
+
+    public DoubleProperty scaleProperty() {
+        return this.scale;
     }
 }

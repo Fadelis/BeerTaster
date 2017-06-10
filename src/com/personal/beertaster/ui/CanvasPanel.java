@@ -27,6 +27,7 @@ public class CanvasPanel extends Pane {
     private final Group circlesContainer = new Group();
     private final Group routeContainer = new Group();
     private final Group elementGroup = new Group(circlesContainer, routeContainer);
+    private final CanvasGestures gestures;
 
     public CanvasPanel() {
         circlesContainer.translateXProperty().bind(widthProperty().divide(2));
@@ -43,7 +44,7 @@ public class CanvasPanel extends Pane {
 
         widthProperty().addListener(e -> scale());
         heightProperty().addListener(e -> scale());
-        new CanvasGestures(this);
+        gestures = new CanvasGestures(this);
     }
 
     public void setupAllBreweries(final Brewery origin, final List<Brewery> breweries) {
@@ -70,26 +71,26 @@ public class CanvasPanel extends Pane {
     public void setupRoute(final Tour tour) {
         route.clear();
 
-        BreweryCircle current = circles.stream()
-                .filter(circle -> Objects.equals(tour.breweries().get(0), circle.brewery()))
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("No start brewery present!"));
-
-        for (int i = 1; i < tour.breweries().size(); i++) {
+        BreweryCircle current = null;
+        for (int i = 0; i < tour.breweries().size(); i++) {
             final Brewery brewery = tour.breweries().get(i);
             final BreweryCircle next = circles.stream()
                     .filter(circle -> Objects.equals(brewery, circle.brewery()))
                     .findFirst()
                     .orElseThrow(() -> new IllegalArgumentException("Could not find routed brewery!"));
+
             if (!next.isOrigin()) {
                 next.setVisited();
             }
+            if (current != null) {
+                route.add(new BreweryLine(current, next, i));
+            }
 
-            route.add(new BreweryLine(current, next));
             current = next;
         }
 
         routeContainer.getChildren().setAll(route);
+        gestures.scaleElementSize();
     }
 
     private void translateBasedOnOrigin(final Brewery origin) {
@@ -101,7 +102,7 @@ public class CanvasPanel extends Pane {
         });
     }
 
-    private void scale() {
+    void scale() {
         final List<BreweryCircle> visitableCircles = circles.stream()
                 .filter(BreweryCircle::isVisitable)
                 .collect(Collectors.toList());

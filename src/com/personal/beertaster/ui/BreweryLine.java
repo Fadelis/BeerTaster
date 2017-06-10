@@ -8,14 +8,16 @@ import javafx.scene.shape.Line;
  */
 public class BreweryLine extends Line {
 
-    public static final double LINE_WIDTH = 2D;
+    public static final double LINE_WIDTH = 3D;
 
     private final BreweryCircle from;
     private final BreweryCircle to;
+    private final int tripIndex;
 
-    public BreweryLine(final BreweryCircle from, final BreweryCircle to) {
+    public BreweryLine(final BreweryCircle from, final BreweryCircle to, final int tripIndex) {
         this.from = from;
         this.to = to;
+        this.tripIndex = tripIndex;
 
         setFill(Color.BLACK);
         setStrokeWidth(LINE_WIDTH);

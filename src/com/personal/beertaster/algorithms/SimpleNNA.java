@@ -11,27 +11,23 @@ package com.personal.beertaster.algorithms;
 import com.personal.beertaster.elements.Brewery;
 
 import java.util.Objects;
+import java.util.Optional;
 
-import static com.personal.beertaster.algorithms.BreweryManager.ORIGIN;
-import static com.personal.beertaster.algorithms.BreweryManager.TRAVEL_DISTANCE;
+import static com.personal.beertaster.algorithms.BreweryManager.*;
+import static java.util.Comparator.comparing;
 
 public class SimpleNNA {
 
     public static Tour planSimpleNNA() {
-        final Tour tour = new Tour();
-        System.out.println("Total possible breweries - " + BreweryManager.getPossibleBreweries().size());
+        System.out.println("Total possible breweries - " + getPossibleBreweries().size());
 
+        final Tour tour = new Tour();
         tour.addBrewery(ORIGIN);
         Brewery currentBrewery = ORIGIN;
-        double totalDistance = 0;
 
-        while (totalDistance <= TRAVEL_DISTANCE) {
-            currentBrewery = BreweryManager
-                    .findBestNeighbour(currentBrewery, tour)
-                    .orElse(ORIGIN);
-
+        while (true) {
+            currentBrewery = findBestNeighbour(currentBrewery, tour).orElse(ORIGIN);
             tour.addBrewery(currentBrewery);
-            totalDistance = tour.getDistance();
 
             if (Objects.equals(currentBrewery, ORIGIN)) {
                 break;
@@ -41,4 +37,21 @@ public class SimpleNNA {
         return tour;
     }
 
+    /**
+     * Find best fitting neighbour, which yields most beer per traveled kilometer.
+     */
+    public static Optional<Brewery> findBestNeighbour(
+            final Brewery brewery,
+            final Tour currentTour
+    ) {
+        if (brewery == null) {
+            return Optional.empty();
+        }
+
+        return getPossibleBreweries().stream()
+                .filter(Brewery::containsBeer)
+                .filter(brew -> !currentTour.breweries().contains(brew))
+                .filter(currentTour::possibleToInsert)
+                .max(comparing(brew -> brew.getBeerCount() / distanceBetween(brewery, brew)));
+    }
 }
