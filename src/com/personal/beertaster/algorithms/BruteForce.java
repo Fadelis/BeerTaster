@@ -17,6 +17,7 @@ import static java.util.Comparator.comparing;
 public class BruteForce {
 
     private static final int BREWERIES_COUNT_CHECK = 2;
+    private static final int MAX_ITERATIONS = 10000;
     private static int counter;
 
     public static Tour planBruteForce() {
@@ -28,6 +29,7 @@ public class BruteForce {
         final Tour bestTour = new Tour();
         bestTour.addBrewery(ORIGIN);
 
+        counter = 0;
         recursivePlanner(bestTour, bestTour, possibleBreweries);
 
         System.out.println(String.format("Checked %s routes", counter));
@@ -36,7 +38,15 @@ public class BruteForce {
         return bestTour;
     }
 
-    private static Tour recursivePlanner(final Tour bestTour, final Tour currentTour, final List<Brewery> possibleBreweries) {
+    private static Tour recursivePlanner(
+            final Tour bestTour,
+            final Tour currentTour,
+            final List<Brewery> possibleBreweries
+    ) {
+        if (counter >= MAX_ITERATIONS) {
+            return bestTour;
+        }
+
         final Brewery currentBrewery = currentTour.getBrewery(currentTour.tourSize() - 1);
 
         final Tour possibleBestTour = possibleBreweries.stream()
@@ -50,8 +60,9 @@ public class BruteForce {
                         without(brewery, possibleBreweries)
                 )).max(Comparator.comparing(Tour::getBeerCount))
                 .orElse(currentTour);
-        possibleBestTour.addBrewery(ORIGIN);
-        counter++;
+        if (possibleBestTour.tourSize() > 1 && possibleBestTour.getBrewery(possibleBestTour.tourSize() - 1) != ORIGIN) {
+            possibleBestTour.addBrewery(ORIGIN);
+        }
 
         if (bestTour.getBeerCount() < possibleBestTour.getBeerCount()) {
             bestTour.setTour(possibleBestTour);
@@ -64,6 +75,7 @@ public class BruteForce {
             ));
         }
 
+        counter++;
         return possibleBestTour;
     }
 

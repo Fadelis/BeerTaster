@@ -7,8 +7,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.IntStream;
 
-import static com.personal.beertaster.algorithms.BreweryManager.ORIGIN;
 import static com.personal.beertaster.algorithms.BreweryManager.distanceBetween;
+import static com.personal.beertaster.algorithms.BreweryManager.distanceToOrigin;
 
 public class Tour {
 
@@ -68,7 +68,9 @@ public class Tour {
         beerCount = 0;
     }
 
-    public List<Brewery> breweries() { return breweries; }
+    public List<Brewery> breweries() {
+        return breweries;
+    }
 
     // Get the total distance of the tour
     public double getDistance() {
@@ -99,7 +101,7 @@ public class Tour {
         final Brewery lastBrewery = breweries.get(breweries.size() - 1);
         final double totalDistance = getDistance() +
                 distanceBetween(lastBrewery, brewery) +
-                distanceBetween(ORIGIN, brewery);
+                distanceToOrigin(brewery);
 
         return totalDistance <= BreweryManager.TRAVEL_DISTANCE;
     }

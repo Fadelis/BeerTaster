@@ -117,6 +117,15 @@ public class BreweryManager {
     }
 
     /**
+     * Find distance to origin node.
+     */
+    public static double distanceToOrigin(final Brewery brewery) {
+        if (brewery == null) return Double.MAX_VALUE;
+
+        return distanceMatrix[breweryMap.get(ORIGIN)][breweryMap.get(brewery)];
+    }
+
+    /**
      * @return Unmodifiable full brewery list
      */
     public static List<Brewery> getBreweryList() {

@@ -10,8 +10,11 @@ import javafx.scene.shape.Circle;
  */
 public class BreweryCircle extends Circle {
 
+    public static final double RADIUS = 10D;
+    public static final double STROKE_WIDTH = 1D;
+
     public enum CircleStyle {
-        NORMAL, VISITED, ORIGIN
+        NORMAL, VISITABLE, VISITED, ORIGIN
     }
 
     private static final Tooltip TOOLTIP = new Tooltip();
@@ -30,26 +33,71 @@ public class BreweryCircle extends Circle {
         setCenterX(brewery.getCoordinates().getLatitude());
         setCenterY(brewery.getCoordinates().getLongitude());
 
-        setRadius(10D);
+        setRadius(RADIUS);
         setStroke(Color.BLACK);
-        setStrokeWidth(1D);
+        setStrokeWidth(STROKE_WIDTH);
+        setColorStyle();
+    }
+
+    public Brewery brewery() {
+        return this.brewery;
+    }
+
+    public double latitude() {
+        return brewery.getCoordinates().getLatitude();
+    }
+
+    public double longitude() {
+        return brewery.getCoordinates().getLongitude();
+    }
+
+    public void setVisited() {
+        if (style != CircleStyle.VISITABLE) return;
+        this.style = CircleStyle.VISITED;
+        setColorStyle();
+    }
+
+    public void setNormal() {
+        if (style == CircleStyle.ORIGIN) return;
+        this.style = CircleStyle.NORMAL;
+        setColorStyle();
+    }
+
+    public void setVisitable() {
+        if (style == CircleStyle.ORIGIN) return;
+        this.style = CircleStyle.VISITABLE;
+        setColorStyle();
+    }
+
+    public boolean isVisitable() {
+        return style == CircleStyle.VISITABLE;
+    }
+
+    public boolean isOrigin() {
+        return style == CircleStyle.ORIGIN;
+    }
+
+    private void setColorStyle() {
         switch (style) {
             case ORIGIN: {
                 setFill(Color.DARKGREEN);
                 break;
             }
-            default: {
+            case VISITABLE: {
                 setFill(Color.CRIMSON);
                 setOpacity(0.6D);
                 break;
             }
+            case VISITED: {
+                setFill(Color.DODGERBLUE);
+                setOpacity(0.6D);
+                break;
+            }
+            default: {
+                setFill(Color.LIGHTGRAY);
+                setOpacity(0.6D);
+                break;
+            }
         }
-    }
-
-    public Brewery brewery() { return this.brewery; }
-
-    public void setVisited() {
-        this.style = CircleStyle.VISITED;
-        setFill(Color.CORNFLOWERBLUE);
     }
 }

@@ -1,6 +1,6 @@
 package com.personal.beertaster.ui;
 
-import com.personal.beertaster.algorithms.SimpleNNA;
+import com.personal.beertaster.algorithms.BruteForce;
 import com.personal.beertaster.algorithms.Tour;
 import javafx.scene.layout.BorderPane;
 
@@ -20,6 +20,7 @@ public class MainPane extends BorderPane {
         setCenter(canvas);
         setTop(toolBar);
 
+        canvas.setupAllBreweries(ORIGIN, getBreweryList());
         createRoute(ORIGIN.getCoordinates().getLatitude(), ORIGIN.getCoordinates().getLongitude());
     }
 
@@ -33,9 +34,9 @@ public class MainPane extends BorderPane {
     private static Tour planRoute() {
         final long start = System.currentTimeMillis();
 
-        final Tour tour = SimpleNNA.planSimpleNNA();
+        //final Tour tour = SimpleNNA.planSimpleNNA();
         //final Tour tour = AdvancedNNA.planAdvancedNNA();
-        //final Tour tour = BruteForce.planBruteForce();
+        final Tour tour = BruteForce.planBruteForce();
         //final Tour tour = SimulatedAnnealing.optimiseTour(SimpleNNA.planSimpleNNA());
 
         System.out.println(tour.toString());
@@ -43,6 +44,7 @@ public class MainPane extends BorderPane {
         final long total = System.currentTimeMillis() - start;
         System.out.println("Calculated in " + total + " ms");
         System.out.println("Total beer " + tour.getBeerCount());
+        System.out.println("Total distance " + tour.getDistance());
 
         return tour;
     }

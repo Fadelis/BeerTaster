@@ -4,6 +4,7 @@ import com.personal.beertaster.elements.Brewery;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.IntStream;
 
 /**
  * @author DATA-DOG Team
@@ -12,10 +13,16 @@ public class SimulatedAnnealing {
 
     public static Tour optimiseTour(final Tour initialSolution) {
         // Set initial temp
-        double temp = 10000;
+        double temp = 100000;
+
+        // degradation percentage
+        double degradation = 0.1;
 
         // Cooling rate
         final double coolingRate = 0.003;
+
+        // number of swaps in each iteration
+        final int swaps = 1;
 
         // Possible breweries to visit
         final List<Brewery> possibleBreweries = new ArrayList<>(BreweryManager.getPossibleBreweries());
@@ -37,24 +44,10 @@ public class SimulatedAnnealing {
             // Create new neighbour tour
             final Tour newSolution = new Tour(currentSolution);
 
-            // Get a random positions in the tour
-            final int tourPos1 = (int) (newSolution.tourSize() * Math.random());
-            final int tourPos2 = (int) (newSolution.tourSize() * Math.random());
-
-            // Get the cities at selected positions in the tour
-            final Brewery citySwap1 = newSolution.getBrewery(tourPos1);
-            final Brewery citySwap2 = newSolution.getBrewery(tourPos2);
-
-            // Swap them
-            newSolution.setBrewery(tourPos2, citySwap1);
-            newSolution.setBrewery(tourPos1, citySwap2);
-
-            // Get energy of solutions
-            final double currentEnergy = currentSolution.getDistance();
-            final double neighbourEnergy = newSolution.getDistance();
+            IntStream.range(0, swaps).forEach(i -> swap(newSolution));
 
             // Decide if we should accept the neighbour
-            if (acceptanceProbability(currentEnergy, neighbourEnergy, temp) > Math.random()) {
+            if (acceptanceProbability(currentSolution, newSolution, best, degradation)) {
                 currentSolution = new Tour(newSolution);
             }
 
@@ -76,13 +69,37 @@ public class SimulatedAnnealing {
         return best;
     }
 
+    private static void swap(final Tour tour) {
+        // Get a random positions in the tour
+        final int tourPos1 = (int) (tour.tourSize() * Math.random());
+        final int tourPos2 = (int) (tour.tourSize() * Math.random());
+
+        // Get the cities at selected positions in the tour
+        final Brewery citySwap1 = tour.getBrewery(tourPos1);
+        final Brewery citySwap2 = tour.getBrewery(tourPos2);
+
+        // Swap them
+        tour.setBrewery(tourPos2, citySwap1);
+        tour.setBrewery(tourPos1, citySwap2);
+    }
+
     // Calculate the acceptance probability
-    private static double acceptanceProbability(final double energy, final double newEnergy, final double temperature) {
+    private static boolean acceptanceProbability(
+            final Tour currentTour,
+            final Tour newTour,
+            final Tour bestTour,
+            final double degradation
+    ) {
+        // Get energy of solutions
+        final double bestEnergy = bestTour.getDistance();
+        final double energy = currentTour.getDistance();
+        final double newEnergy = newTour.getDistance();
+
         // If the new solution is better, accept it
         if (newEnergy < energy) {
-            return 1.0;
+            return true;
         }
         // If the new solution is worse, calculate an acceptance probability
-        return Math.exp((energy - newEnergy) / temperature);
+        return newEnergy < bestEnergy * (1 + degradation);
     }
 }

@@ -1,11 +1,11 @@
 package com.personal.beertaster.ui;
 
-import com.personal.beertaster.algorithms.BreweryManager;
 import com.personal.beertaster.algorithms.Tour;
 import com.personal.beertaster.elements.Brewery;
 import javafx.scene.Group;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Circle;
+import javafx.scene.shape.Rectangle;
 
 import java.util.ArrayList;
 import java.util.DoubleSummaryStatistics;
@@ -26,6 +26,7 @@ public class CanvasPanel extends Pane {
     private final List<BreweryLine> route = new ArrayList<>();
     private final Group circlesContainer = new Group();
     private final Group routeContainer = new Group();
+    private final Group elementGroup = new Group(circlesContainer, routeContainer);
 
     public CanvasPanel() {
         circlesContainer.translateXProperty().bind(widthProperty().divide(2));
@@ -33,22 +34,36 @@ public class CanvasPanel extends Pane {
         routeContainer.translateXProperty().bind(widthProperty().divide(2));
         routeContainer.translateYProperty().bind(heightProperty().divide(2));
 
-        getChildren().addAll(circlesContainer, routeContainer);
+        getChildren().addAll(elementGroup);
+
+        Rectangle clipRectangle = new Rectangle();
+        clipRectangle.widthProperty().bind(widthProperty());
+        clipRectangle.heightProperty().bind(heightProperty());
+        setClip(clipRectangle);
 
         widthProperty().addListener(e -> scale());
         heightProperty().addListener(e -> scale());
+        new CanvasGestures(this);
     }
 
-    public void setupNewOrigin(final Brewery origin, final List<Brewery> breweries) {
+    public void setupAllBreweries(final Brewery origin, final List<Brewery> breweries) {
         circles.clear();
         circles.addAll(breweries.stream()
+                .filter(brewery -> Objects.nonNull(brewery.getCoordinates()))
                 .map(BreweryCircle::new)
                 .collect(Collectors.toList()));
         circles.add(new BreweryCircle(origin, BreweryCircle.CircleStyle.ORIGIN));
 
         circlesContainer.getChildren().setAll(circles);
+    }
 
-        translateBasedOnOrigin();
+    public void setupNewOrigin(final Brewery origin, final List<Brewery> visitableBreweries) {
+        circles.forEach(BreweryCircle::setNormal);
+        circles.stream()
+                .filter(circle -> visitableBreweries.contains(circle.brewery()))
+                .forEach(BreweryCircle::setVisitable);
+
+        translateBasedOnOrigin(origin);
         scale();
     }
 
@@ -66,6 +81,9 @@ public class CanvasPanel extends Pane {
                     .filter(circle -> Objects.equals(brewery, circle.brewery()))
                     .findFirst()
                     .orElseThrow(() -> new IllegalArgumentException("Could not find routed brewery!"));
+            if (!next.isOrigin()) {
+                next.setVisited();
+            }
 
             route.add(new BreweryLine(current, next));
             current = next;
@@ -74,21 +92,27 @@ public class CanvasPanel extends Pane {
         routeContainer.getChildren().setAll(route);
     }
 
-    private void translateBasedOnOrigin() {
-        final double translateX = -BreweryManager.ORIGIN.getCoordinates().getLatitude();
-        final double translateY = -BreweryManager.ORIGIN.getCoordinates().getLongitude();
+    private void translateBasedOnOrigin(final Brewery origin) {
+        final double translateX = -origin.getCoordinates().getLatitude();
+        final double translateY = -origin.getCoordinates().getLongitude();
         circles.forEach(circle -> {
-            circle.setCenterX(circle.getCenterX() + translateX);
-            circle.setCenterY(circle.getCenterY() + translateY);
+            circle.setCenterX(circle.latitude() + translateX);
+            circle.setCenterY(circle.longitude() + translateY);
         });
     }
 
     private void scale() {
+        final List<BreweryCircle> visitableCircles = circles.stream()
+                .filter(BreweryCircle::isVisitable)
+                .collect(Collectors.toList());
+
         final double width = getWidth() / 2 - PADDING;
         final double height = getHeight() / 2 - PADDING;
 
-        final DoubleSummaryStatistics summaryX = circles.stream().collect(summarizingDouble(Circle::getCenterX));
-        final DoubleSummaryStatistics summaryY = circles.stream().collect(summarizingDouble(Circle::getCenterY));
+        final DoubleSummaryStatistics summaryX = visitableCircles.stream()
+                .collect(summarizingDouble(Circle::getCenterX));
+        final DoubleSummaryStatistics summaryY = visitableCircles.stream()
+                .collect(summarizingDouble(Circle::getCenterY));
 
         final double groupMaxX = Math.max(Math.abs(summaryX.getMax()), Math.abs(summaryX.getMin()));
         final double groupMaxY = Math.max(Math.abs(summaryY.getMax()), Math.abs(summaryY.getMin()));
@@ -98,5 +122,9 @@ public class CanvasPanel extends Pane {
             circle.setTranslateX(circle.getCenterX() * scale - circle.getCenterX());
             circle.setTranslateY(circle.getCenterY() * scale - circle.getCenterY());
         });
+    }
+
+    public Group elementGroup() {
+        return elementGroup;
     }
 }
