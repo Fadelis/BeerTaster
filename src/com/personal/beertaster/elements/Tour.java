@@ -1,6 +1,6 @@
-package com.personal.beertaster.algorithms;
+package com.personal.beertaster.elements;
 
-import com.personal.beertaster.elements.Brewery;
+import com.personal.beertaster.algorithms.BreweryManager;
 
 import java.util.ArrayList;
 import java.util.List;

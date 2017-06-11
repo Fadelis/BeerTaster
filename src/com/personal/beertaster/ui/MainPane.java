@@ -2,7 +2,7 @@ package com.personal.beertaster.ui;
 
 import com.personal.beertaster.algorithms.BestReinsertion;
 import com.personal.beertaster.algorithms.SimpleNNA;
-import com.personal.beertaster.algorithms.Tour;
+import com.personal.beertaster.elements.Tour;
 import javafx.scene.layout.BorderPane;
 
 import static com.personal.beertaster.algorithms.BreweryManager.*;

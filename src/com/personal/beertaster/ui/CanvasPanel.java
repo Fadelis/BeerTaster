@@ -1,7 +1,7 @@
 package com.personal.beertaster.ui;
 
-import com.personal.beertaster.algorithms.Tour;
 import com.personal.beertaster.elements.Brewery;
+import com.personal.beertaster.elements.Tour;
 import javafx.scene.Group;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Circle;
@@ -94,11 +94,11 @@ public class CanvasPanel extends Pane {
     }
 
     private void translateBasedOnOrigin(final Brewery origin) {
-        final double translateX = -origin.getCoordinates().getLatitude();
-        final double translateY = -origin.getCoordinates().getLongitude();
+        final double translateX = origin.getCoordinates().getX();
+        final double translateY = origin.getCoordinates().getY();
         circles.forEach(circle -> {
-            circle.setCenterX(circle.latitude() + translateX);
-            circle.setCenterY(circle.longitude() + translateY);
+            circle.setCenterX(circle.getX() - translateX);
+            circle.setCenterY(translateY - circle.getY());
         });
     }
 

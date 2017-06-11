@@ -4,6 +4,7 @@ import com.personal.beertaster.algorithms.BreweryManager;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToolBar;
+import javafx.scene.control.Tooltip;
 
 import java.util.function.BiConsumer;
 
@@ -22,6 +23,11 @@ public class MainToolBar extends ToolBar {
         txtLongitude = new TextField(Double.toString(BreweryManager.ORIGIN.getCoordinates().getLongitude()));
         btnRoute = new Button("Route");
         btnOptimise = new Button("Optimise");
+
+        txtLatitude.setTooltip(new Tooltip("Origin latitude"));
+        txtLatitude.setPromptText("Latitude");
+        txtLongitude.setTooltip(new Tooltip("Origin longitude"));
+        txtLongitude.setPromptText("Longitude");
 
         getItems().setAll(txtLatitude, txtLongitude, btnRoute, btnOptimise);
     }

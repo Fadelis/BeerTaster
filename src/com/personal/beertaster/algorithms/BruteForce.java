@@ -5,6 +5,7 @@
 package com.personal.beertaster.algorithms;
 
 import com.personal.beertaster.elements.Brewery;
+import com.personal.beertaster.elements.Tour;
 
 import java.util.ArrayList;
 import java.util.Comparator;

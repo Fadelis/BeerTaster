@@ -13,8 +13,8 @@ public class Coordinates {
         this.latitude = latitude;
         this.longitude = longitude;
 
-        this.x = R * Math.cos(latitude) * Math.cos(longitude);
-        this.y = R * Math.cos(latitude) * Math.sin(longitude);
+        this.x = getDistance(latitude, 0) * Math.signum(longitude);
+        this.y = getDistance(0, longitude) * Math.signum(latitude);
     }
 
     public double getDistance(Coordinates other) {
@@ -69,6 +69,6 @@ public class Coordinates {
 
     @Override
     public String toString() {
-        return String.format("%s, %s", getLatitude(), getLongitude());
+        return String.format("%.5f, %.5f", getLatitude(), getLongitude());
     }
 }

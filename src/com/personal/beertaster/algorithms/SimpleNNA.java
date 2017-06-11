@@ -9,6 +9,7 @@ bravoru, kuriem uztektu kuro ir alplankyti ir grizti namo.
 package com.personal.beertaster.algorithms;
 
 import com.personal.beertaster.elements.Brewery;
+import com.personal.beertaster.elements.Tour;
 
 import java.util.Objects;
 import java.util.Optional;

@@ -5,6 +5,8 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 
+import static com.personal.beertaster.algorithms.BreweryManager.distanceToOrigin;
+
 /**
  * @author DATA-DOG Team
  */
@@ -17,8 +19,6 @@ public class BreweryCircle extends Circle {
         NORMAL, VISITABLE, VISITED, ORIGIN
     }
 
-    private static final Tooltip TOOLTIP = new Tooltip();
-
     private final Brewery brewery;
     private CircleStyle style;
 
@@ -30,43 +30,56 @@ public class BreweryCircle extends Circle {
         this.brewery = brewery;
         this.style = style;
 
-        setCenterX(brewery.getCoordinates().getLatitude());
-        setCenterY(brewery.getCoordinates().getLongitude());
+        setCenterX(getX());
+        setCenterY(getY());
 
         setRadius(RADIUS);
         setStroke(Color.BLACK);
         setStrokeWidth(STROKE_WIDTH);
-        setColorStyle();
+        updateColorStyle();
+
+        final Tooltip tooltip = new Tooltip();
+        tooltip.setOnShowing(e -> tooltip.setText(getTooltip()));
+        Tooltip.install(this, tooltip);
     }
 
     public Brewery brewery() {
         return this.brewery;
     }
 
-    public double latitude() {
-        return brewery.getCoordinates().getLatitude();
+    public double getX() {
+        return brewery.getCoordinates().getX();
     }
 
-    public double longitude() {
-        return brewery.getCoordinates().getLongitude();
+    public double getY() {
+        return brewery.getCoordinates().getY();
+    }
+
+    public String getTooltip() {
+        return new StringBuilder()
+                .append(brewery.toString())
+                .append(System.lineSeparator())
+                .append("Distance to origin: ")
+                .append(String.format("%.1f km", distanceToOrigin(brewery)))
+                .toString();
     }
 
     public void setVisited() {
         if (style != CircleStyle.VISITABLE) return;
         this.style = CircleStyle.VISITED;
-        setColorStyle();
+        updateColorStyle();
     }
 
     public void setNormal() {
         if (style == CircleStyle.ORIGIN) return;
         this.style = CircleStyle.NORMAL;
-        setColorStyle();
+        updateColorStyle();
     }
 
     public void setVisitable() {
         if (style == CircleStyle.ORIGIN) return;
         this.style = CircleStyle.VISITABLE;
-        setColorStyle();
+        updateColorStyle();
     }
 
     public boolean isVisitable() {
@@ -77,7 +90,7 @@ public class BreweryCircle extends Circle {
         return style == CircleStyle.ORIGIN;
     }
 
-    private void setColorStyle() {
+    private void updateColorStyle() {
         switch (style) {
             case ORIGIN: {
                 setFill(Color.DARKGREEN);

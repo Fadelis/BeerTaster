@@ -11,6 +11,7 @@ nukeliautume 160km ir surinktume 12 rusiu alaus.
 package com.personal.beertaster.algorithms;
 
 import com.personal.beertaster.elements.Brewery;
+import com.personal.beertaster.elements.Tour;
 
 import java.util.AbstractMap.SimpleEntry;
 import java.util.List;
