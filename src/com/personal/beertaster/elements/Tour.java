@@ -125,7 +125,7 @@ public class Tour {
     public String toString() {
         if (breweries == null) return "";
         final StringBuilder sb = new StringBuilder();
-        sb.append(String.format("Found %s beer factories", breweries.size() - 2));
+        sb.append(String.format("Visited %s breweries", breweriesCount()));
         for (int i = 0; i < breweries.size(); i++) {
             double distBetween = 0;
             if (i != 0) distBetween = distanceBetween(getBrewery(i - 1), getBrewery(i));
@@ -136,7 +136,7 @@ public class Tour {
         sb.append(String.format("Total distance travelled: %.1fkm", getDistance()));
         sb.append(System.lineSeparator());
         sb.append(System.lineSeparator());
-        sb.append(String.format("Collected %s beer types:", breweries.stream().mapToInt(Brewery::getBeerCount).sum()));
+        sb.append(String.format("Collected %s beer types:", beerCount()));
         breweries.stream()
                 .map(Brewery::getBeerList)
                 .filter(Objects::nonNull)

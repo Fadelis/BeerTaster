@@ -68,9 +68,9 @@ public class BruteForce {
         if (bestTour.beerCount() < possibleBestTour.beerCount()) {
             bestTour.setTour(possibleBestTour);
             System.out.println(String.format(
-                    "[%s] Found new best route: %s factories; %s beers; %.1fkm;",
+                    "[%s] Found new best route: %s breweries; %s beers; %.1f km;",
                     counter,
-                    possibleBestTour.tourSize() - 2,
+                    possibleBestTour.breweriesCount(),
                     possibleBestTour.beerCount(),
                     possibleBestTour.getDistance()
             ));

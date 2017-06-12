@@ -17,7 +17,7 @@ public class BreweryManager {
     private static ArrayList<Brewery> possibleBreweries;
     private static double[][] distanceMatrix;
 
-    public static void initialize() {
+    public static void initialize() throws Exception {
         breweryList = new ArrayList<>();
         breweryList.add(ORIGIN);
         breweryList.addAll(Converter.readCSV());

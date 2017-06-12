@@ -3,117 +3,95 @@ package com.personal.beertaster.utilities;
 import com.personal.beertaster.elements.Beer;
 import com.personal.beertaster.elements.Brewery;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Optional;
 
 public class Converter {
-    public static final String ENCODING = "UTF-8";
+    private static final String VAR_SEPARATOR = ",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)";
 
-    public static ArrayList<Brewery> readCSV() {
-
-        String NEW_LINE = System.lineSeparator();
-        String VAR_SERPARATOR = ",";
-
-        HashMap<Integer, Brewery> breweryMap = new HashMap<>();
-
+    public static ArrayList<Brewery> readCSV() throws Exception {
+        final HashMap<Integer, Brewery> breweryMap = new HashMap<>();
 
         //Read breweries CSV
-        StringBuilder sb = getFileData("resources/breweries.csv");
+        final int INDEX_ID = 0;
+        final int INDEX_NAME = 1;
+        final int INDEX_CITY = 4;
+        final int INDEX_COUNTRY = 7;
+        List<String> rows = getFileData("resources/breweries.csv");
+        for (int n = 1; n < rows.size(); n++) {
+            final String[] splitFields = rows.get(n).split(VAR_SEPARATOR);
 
-        int INDEX_ID = 0, INDEX_NAME = 1, INDEX_CITY = 4, INDEX_COUNTRY = 7;
-        String[] rows = sb.toString().split(NEW_LINE);
-        String[] splitedFields;
-        for (int n = 1; n < rows.length; n++) {
-            splitedFields = rows[n].split(VAR_SERPARATOR);
-
-            int id = parseInt(splitedFields[INDEX_ID]);
+            final int id = parseInt(splitFields[INDEX_ID]);
             if (id == -1) continue;
 
-            Brewery brewery = new Brewery(id);
-            brewery.setName(unescape(splitedFields[INDEX_NAME]));
-            brewery.setCity(unescape(splitedFields[INDEX_CITY]));
-            brewery.setCountry(unescape(splitedFields[INDEX_COUNTRY]));
+            final Brewery brewery = new Brewery(id);
+            brewery.setName(unescape(splitFields[INDEX_NAME]));
+            brewery.setCity(unescape(splitFields[INDEX_CITY]));
+            brewery.setCountry(unescape(splitFields[INDEX_COUNTRY]));
 
             breweryMap.put(id, brewery);
         }
 
-
         //Read beers CSV and add them to breweries objects
-        sb = getFileData("resources/beers.csv");
+        final int INDEX_BREWERY_ID = 1;
+        final int INDEX_BEER_NAME = 2;
+        final int INDEX_BEER_CAT = 3;
+        final int INDEX_BEER_STYLE = 4;
+        rows = getFileData("resources/beers.csv");
+        for (int n = 1; n < rows.size(); n++) {
+            final String[] splitFields = rows.get(n).split(VAR_SEPARATOR);
 
-        int INDEX_BREWERY_ID = 1, INDEX_BEER_NAME = 2, INDEX_BEER_CAT = 3, INDEX_BEER_STYLE = 4;
-        rows = sb.toString().split(NEW_LINE);
-        for (int n = 1; n < rows.length; n++) {
-            splitedFields = rows[n].split(VAR_SERPARATOR);
-
-            int id = parseInt(splitedFields[INDEX_ID]);
+            final int id = parseInt(splitFields[INDEX_ID]);
             if (id == -1) continue;
 
-            int breweryID = parseInt(splitedFields[INDEX_BREWERY_ID]);
-            Beer beer = new Beer(id);
+            final int breweryID = parseInt(splitFields[INDEX_BREWERY_ID]);
+            final Beer beer = new Beer(id);
             beer.setBreweryID(breweryID);
-            beer.setName(unescape(splitedFields[INDEX_BEER_NAME]));
-            beer.setCategoryID(parseInt(splitedFields[INDEX_BEER_CAT]));
-            beer.setStyleID(parseInt(splitedFields[INDEX_BEER_STYLE]));
+            beer.setName(unescape(splitFields[INDEX_BEER_NAME]));
+            beer.setCategoryID(parseInt(splitFields[INDEX_BEER_CAT]));
+            beer.setStyleID(parseInt(splitFields[INDEX_BEER_STYLE]));
 
-            Brewery brewery = breweryMap.get(breweryID);
-            if (brewery != null) brewery.addBeer(beer);
+            Optional.ofNullable(breweryMap.get(breweryID))
+                    .ifPresent(brewery -> brewery.addBeer(beer));
         }
 
-
         //Read breweries geodata CSV and set them to breweries objects
-        sb = getFileData("resources/geocodes.csv");
+        final int INDEX_LAT = 2;
+        final int INDEX_LON = 3;
+        rows = getFileData("resources/geocodes.csv");
+        for (int n = 1; n < rows.size(); n++) {
+            final String[] splitFields = rows.get(n).split(VAR_SEPARATOR);
 
-        int INDEX_LAT = 2, INDEX_LON = 3;
-        rows = sb.toString().split(NEW_LINE);
-        for (int n = 1; n < rows.length; n++) {
-            splitedFields = rows[n].split(VAR_SERPARATOR);
-
-            int breweryID = parseInt(splitedFields[INDEX_BREWERY_ID]);
+            final int breweryID = parseInt(splitFields[INDEX_BREWERY_ID]);
             if (breweryID == -1) continue;
 
-            double lat = parseDouble(splitedFields[INDEX_LAT]);
-            double lon = parseDouble(splitedFields[INDEX_LON]);
+            final double lat = parseDouble(splitFields[INDEX_LAT]);
+            final double lon = parseDouble(splitFields[INDEX_LON]);
 
-            Brewery brewery = breweryMap.get(breweryID);
-            if (brewery != null) brewery.setCoordinates(lat, lon);
+            Optional.ofNullable(breweryMap.get(breweryID))
+                    .ifPresent(brewery -> brewery.setCoordinates(lat, lon));
         }
 
         return new ArrayList<>(breweryMap.values());
     }
 
-    private static StringBuilder getFileData(String filePath) {
-        try {
-            ClassLoader classloader = Thread.currentThread().getContextClassLoader();
-            InputStream inStream = classloader.getResourceAsStream(filePath);
-            InputStreamReader reader = new InputStreamReader(inStream, ENCODING);
+    private static List<String> getFileData(final String filePath) throws Exception {
+        final ClassLoader classloader = Thread.currentThread().getContextClassLoader();
 
-            BufferedReader br = new BufferedReader(reader);
-            StringBuilder sb = new StringBuilder();
-            String line;
-            while ((line = br.readLine()) != null) {
-                sb.append(line);
-                sb.append(System.lineSeparator());
-            }
-
-            return sb;
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
+        return Files.readAllLines(Paths.get(classloader.getResource(filePath).toURI()));
     }
 
     /**
      * Remove quotes from string variables
      */
-    private static String unescape(String str) {
+    private static String unescape(final String str) {
         if (str == null || str.isEmpty()) return "";
 
-        String STRING_VAR = "\"";
+        final String STRING_VAR = "\"";
         if (str.startsWith(STRING_VAR) && str.endsWith(STRING_VAR)) {
             return str.replaceAll(STRING_VAR, "");
         } else {
@@ -132,7 +110,7 @@ public class Converter {
         return value;
     }
 
-    public static double parseDouble(String str) {
+    private static double parseDouble(String str) {
         if (str == null || str.isEmpty()) return -1;
         double value = -1;
         str = str.replaceAll("[^0-9.,-]", "");
