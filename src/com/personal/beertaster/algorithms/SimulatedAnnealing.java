@@ -17,7 +17,7 @@ public class SimulatedAnnealing {
         double temp = 100000;
 
         // degradation percentage
-        double degradation = 0.1;
+        final double degradation = 0.1;
 
         // Cooling rate
         final double coolingRate = 0.003;
@@ -34,7 +34,7 @@ public class SimulatedAnnealing {
         System.out.println(String.format(
                 "Initial solution distance: %.1f; beers: %d",
                 currentSolution.getDistance(),
-                currentSolution.getBeerCount()
+                currentSolution.beerCount()
         ));
 
         // Set as current best
@@ -64,7 +64,7 @@ public class SimulatedAnnealing {
         System.out.println(String.format(
                 "Final solution distance: %.1f; beers: %d",
                 best.getDistance(),
-                best.getBeerCount()
+                best.beerCount()
         ));
 
         return best;

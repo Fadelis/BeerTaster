@@ -7,16 +7,13 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.IntStream;
 
-import static com.personal.beertaster.algorithms.BreweryManager.distanceBetween;
-import static com.personal.beertaster.algorithms.BreweryManager.distanceToOrigin;
+import static com.personal.beertaster.algorithms.BreweryManager.*;
 
 public class Tour {
-
 
     private final List<Brewery> breweries = new ArrayList<>();
     private double distance = 0;
     private int beerCount = 0;
-
 
     public Tour() {
     }
@@ -86,18 +83,22 @@ public class Tour {
     }
 
     //Get total number of beer collected
-    public int getBeerCount() {
+    public int beerCount() {
         if (beerCount == 0) {
             beerCount = breweries.stream().mapToInt(Brewery::getBeerCount).sum();
         }
         return beerCount;
     }
 
+    public long breweriesCount() {
+        return breweries.stream().filter(brewery -> !Objects.equals(ORIGIN, brewery)).count();
+    }
+
     public boolean isBetterThan(final Tour maybeBetterTour) {
         final double distance = getDistance();
         final double newDistance = maybeBetterTour.getDistance();
-        final int beerCount = getBeerCount();
-        final int newBeerCount = maybeBetterTour.getBeerCount();
+        final int beerCount = beerCount();
+        final int newBeerCount = maybeBetterTour.beerCount();
 
         return distance > newDistance ||
                 (newBeerCount > beerCount && newDistance <= BreweryManager.TRAVEL_DISTANCE);

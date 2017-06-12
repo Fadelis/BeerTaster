@@ -14,6 +14,7 @@ public class MainPane extends BorderPane {
 
     private final CanvasPanel canvas = new CanvasPanel();
     private final MainToolBar toolBar = new MainToolBar();
+    private final StatusBar statusBar = new StatusBar();
 
     private Tour currentTour;
 
@@ -23,43 +24,52 @@ public class MainPane extends BorderPane {
 
         setCenter(canvas);
         setTop(toolBar);
+        setBottom(statusBar);
 
         canvas.setupAllBreweries(ORIGIN, getBreweryList());
         createRoute(ORIGIN.getCoordinates().getLatitude(), ORIGIN.getCoordinates().getLongitude());
     }
 
     private void createRoute(final double latitude, final double longitude) {
-        final long start = System.currentTimeMillis();
-
         setOriginLocation(latitude, longitude);
 
+        final long start = System.currentTimeMillis();
         currentTour = planRoute();
+        final long total = System.currentTimeMillis() - start;
+
+        statusBar.factoriesText(String.format("Breweries visited: %d", currentTour.breweriesCount()));
+        statusBar.beersText(String.format("Beers collected: %d", currentTour.beerCount()));
+        statusBar.distanceText(String.format("Distance travelled: %.1f km", currentTour.getDistance()));
+        statusBar.runtimeText(String.format("Created route in %d ms", total));
 
         canvas.setupNewOrigin(ORIGIN, getPossibleBreweries());
         canvas.setupRoute(currentTour);
 
-        final long total = System.currentTimeMillis() - start;
         System.out.println("Created route in " + total + " ms");
         System.out.println(String.format(
                 "Total distance: %.1f; Total beer: %d",
                 currentTour.getDistance(),
-                currentTour.getBeerCount()
+                currentTour.beerCount()
         ));
     }
 
     private void optimiseRoute() {
         final long start = System.currentTimeMillis();
-
         currentTour = BestReinsertion.optimiseTour(currentTour);
+        final long total = System.currentTimeMillis() - start;
+
+        statusBar.factoriesText(String.format("Breweries visited: %d", currentTour.breweriesCount()));
+        statusBar.beersText(String.format("Beers collected: %d", currentTour.beerCount()));
+        statusBar.distanceText(String.format("Distance travelled: %.1f km", currentTour.getDistance()));
+        statusBar.runtimeText(String.format("Optimised route in %d ms", total));
 
         canvas.setupRoute(currentTour);
 
-        final long total = System.currentTimeMillis() - start;
         System.out.println("Optimised route in " + total + " ms");
         System.out.println(String.format(
                 "Total distance: %.1f; Total beer: %d",
                 currentTour.getDistance(),
-                currentTour.getBeerCount()
+                currentTour.beerCount()
         ));
     }
 

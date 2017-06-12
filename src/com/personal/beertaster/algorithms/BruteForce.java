@@ -59,19 +59,19 @@ public class BruteForce {
                         bestTour,
                         currentTour.withBrewery(brewery),
                         without(brewery, possibleBreweries)
-                )).max(Comparator.comparing(Tour::getBeerCount))
+                )).max(Comparator.comparing(Tour::beerCount))
                 .orElse(currentTour);
         if (possibleBestTour.tourSize() > 1 && possibleBestTour.getBrewery(possibleBestTour.tourSize() - 1) != ORIGIN) {
             possibleBestTour.addBrewery(ORIGIN);
         }
 
-        if (bestTour.getBeerCount() < possibleBestTour.getBeerCount()) {
+        if (bestTour.beerCount() < possibleBestTour.beerCount()) {
             bestTour.setTour(possibleBestTour);
             System.out.println(String.format(
                     "[%s] Found new best route: %s factories; %s beers; %.1fkm;",
                     counter,
                     possibleBestTour.tourSize() - 2,
-                    possibleBestTour.getBeerCount(),
+                    possibleBestTour.beerCount(),
                     possibleBestTour.getDistance()
             ));
         }

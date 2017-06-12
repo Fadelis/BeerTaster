@@ -20,7 +20,7 @@ public class BestReinsertion {
         System.out.println(String.format(
                 "Initial solution distance: %.1f; beers: %d",
                 initialSolution.getDistance(),
-                initialSolution.getBeerCount()
+                initialSolution.beerCount()
         ));
 
         final Tour best = initialSolution.breweries().stream()
@@ -42,7 +42,7 @@ public class BestReinsertion {
                         //.sorted().limit(2).sum()
                 )).filter(brew -> brew.getValue() <= remainingDistance)
                 .sorted(comparing(Map.Entry::getValue))
-                //.sorted(Comparator.comparing(brew -> brew.getValue() / brew.getKey().getBeerCount()))
+                //.sorted(Comparator.comparing(brew -> brew.getValue() / brew.getKey().beerCount()))
                 .map(Map.Entry::getKey)
                 .reduce(
                         new Tour(best),
@@ -60,7 +60,7 @@ public class BestReinsertion {
 
         return IntStream.range(1, slicedTour.breweries().size() - 1)
                 .mapToObj(id -> slicedTour.insertAt(id, brewery))
-                .max(comparing(tour -> tour.getBeerCount() / tour.getDistance()))
+                .max(comparing(tour -> tour.beerCount() / tour.getDistance()))
                 .filter(currentTour::isBetterThan)
                 .orElse(currentTour);
     }

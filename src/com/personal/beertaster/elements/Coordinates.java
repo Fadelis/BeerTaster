@@ -2,6 +2,10 @@ package com.personal.beertaster.elements;
 
 public class Coordinates {
     private static final double R = 6372.8; // Earth radius in kilometers
+    public static final double MIN_LATITUDE = -90.0;
+    public static final double MAX_LATITUDE = 90.0;
+    public static final double MIN_LONGITUDE = -180.0;
+    public static final double MAX_LONGITUDE = 180.0;
 
     private double latitude, longitude;
     private double x, y;
@@ -9,7 +13,7 @@ public class Coordinates {
     public Coordinates() {
     }
 
-    public Coordinates(double latitude, double longitude) {
+    public Coordinates(final double latitude, final double longitude) {
         this.latitude = latitude;
         this.longitude = longitude;
 
@@ -17,33 +21,33 @@ public class Coordinates {
         this.y = getDistance(0, longitude) * Math.signum(latitude);
     }
 
-    public double getDistance(Coordinates other) {
+    public double getDistance(final Coordinates other) {
         return getDistance(this, other);
     }
 
-    public double getDistance(double otherLat, double otherLon) {
+    public double getDistance(final double otherLat, final double otherLon) {
         return getDistance(getLatitude(), getLongitude(), otherLat, otherLon);
     }
 
-    public static double getDistance(Coordinates coord1, Coordinates coord2) {
+    public static double getDistance(final Coordinates coord1, final Coordinates coord2) {
         if (coord1 != null && coord2 != null) {
             return getDistance(coord1.getLatitude(), coord1.getLongitude(), coord2.getLatitude(), coord2.getLongitude());
         }
         return 0;
     }
 
-    public static double getDistance(double lat1, double lon1, double lat2, double lon2) {
-        double dLat = Math.toRadians(lat2 - lat1);
-        double dLon = Math.toRadians(lon2 - lon1);
+    public static double getDistance(double lat1, final double lon1, double lat2, final double lon2) {
+        final double dLat = Math.toRadians(lat2 - lat1);
+        final double dLon = Math.toRadians(lon2 - lon1);
         lat1 = Math.toRadians(lat1);
         lat2 = Math.toRadians(lat2);
 
-        double a = Math.pow(Math.sin(dLat / 2), 2) + Math.pow(Math.sin(dLon / 2), 2) * Math.cos(lat1) * Math.cos(lat2);
-        double c = 2 * Math.asin(Math.sqrt(a));
+        final double a = Math.pow(Math.sin(dLat / 2), 2) + Math.pow(Math.sin(dLon / 2), 2) * Math.cos(lat1) * Math.cos(lat2);
+        final double c = 2 * Math.asin(Math.sqrt(a));
         return R * c;
     }
 
-    public void setLatitude(double value) {
+    public void setLatitude(final double value) {
         this.latitude = value;
     }
 
@@ -51,7 +55,7 @@ public class Coordinates {
         return this.latitude;
     }
 
-    public void setLongitude(double value) {
+    public void setLongitude(final double value) {
         this.longitude = value;
     }
 

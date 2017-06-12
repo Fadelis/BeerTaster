@@ -41,7 +41,7 @@ public class SimpleNNA {
     /**
      * Find best fitting neighbour, which yields most beer per traveled kilometer.
      */
-    public static Optional<Brewery> findBestNeighbour(
+    private static Optional<Brewery> findBestNeighbour(
             final Brewery brewery,
             final Tour currentTour
     ) {
@@ -50,7 +50,6 @@ public class SimpleNNA {
         }
 
         return getPossibleBreweries().stream()
-                .filter(Brewery::containsBeer)
                 .filter(brew -> !currentTour.breweries().contains(brew))
                 .filter(currentTour::possibleToInsert)
                 .max(comparing(brew -> brew.getBeerCount() / distanceBetween(brewery, brew)));

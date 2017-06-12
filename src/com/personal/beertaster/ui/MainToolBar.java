@@ -1,12 +1,12 @@
 package com.personal.beertaster.ui;
 
 import com.personal.beertaster.algorithms.BreweryManager;
-import javafx.scene.control.Button;
-import javafx.scene.control.TextField;
-import javafx.scene.control.ToolBar;
-import javafx.scene.control.Tooltip;
+import javafx.scene.control.*;
 
+import java.util.Objects;
 import java.util.function.BiConsumer;
+
+import static com.personal.beertaster.elements.Coordinates.*;
 
 /**
  * @author DATA-DOG Team
@@ -34,14 +34,38 @@ public class MainToolBar extends ToolBar {
 
     public void setOnRouteCallback(final BiConsumer<Double, Double> onRouteCallback) {
         btnRoute.setOnAction(e -> {
-            final double latitude = Double.parseDouble(txtLatitude.getText());
-            final double longitude = Double.parseDouble(txtLongitude.getText());
+            final Double latitude = parse(txtLatitude.getText(), MIN_LATITUDE, MAX_LATITUDE, "Latitude");
+            final Double longitude = parse(txtLongitude.getText(), MIN_LONGITUDE, MAX_LONGITUDE, "Longitude");
 
-            onRouteCallback.accept(latitude, longitude);
+            if (Objects.nonNull(latitude) && Objects.nonNull(longitude)) {
+                onRouteCallback.accept(latitude, longitude);
+            }
         });
     }
 
     public void setOnOptimiseCallback(final Runnable action) {
         btnOptimise.setOnAction(e -> action.run());
+    }
+
+    private Double parse(final String text, final double min, final double max, final String label) {
+        try {
+            final double value = Double.parseDouble(text);
+            if (value > min && value < max) {
+                return value;
+            }
+            showErrorDialog(String.format("%s must be between %.0f and %.0f", label, min, max));
+        } catch (final NumberFormatException ex) {
+            showErrorDialog(String.format("Failed to parse to valid number: %s", text));
+        }
+        return null;
+    }
+
+    private void showErrorDialog(final String message) {
+        final Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Error Dialog");
+        alert.setHeaderText("Error occurred while parsing");
+        alert.setContentText(message);
+
+        alert.showAndWait();
     }
 }

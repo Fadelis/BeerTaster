@@ -39,7 +39,7 @@ public class AdvancedNNA {
             final Brewery bestCandidate = possibleBreweries.stream()
                     .map(brewery -> new SimpleEntry<>(brewery, lookAheadTour(brewery, tour)))
                     .filter(entry -> Objects.nonNull(entry.getValue()))
-                    .min(comparing(entry -> entry.getValue().getDistance() / entry.getValue().getBeerCount()))
+                    .min(comparing(entry -> entry.getValue().getDistance() / entry.getValue().beerCount()))
                     .map(SimpleEntry::getKey)
                     .orElse(ORIGIN);
 
@@ -80,7 +80,7 @@ public class AdvancedNNA {
     /**
      * Find best fitting neighbour, which yields most beer per traveled kilometer.
      */
-    public static Optional<Brewery> findBestNeighbour(
+    private static Optional<Brewery> findBestNeighbour(
             final Brewery brewery,
             final Tour currentTour
     ) {
@@ -89,7 +89,6 @@ public class AdvancedNNA {
         }
 
         return getPossibleBreweries().stream()
-                .filter(Brewery::containsBeer)
                 .filter(brew -> !currentTour.breweries().contains(brew))
                 .filter(currentTour::possibleToInsert)
                 .max(comparing(brew -> brew.getBeerCount() / distanceBetween(brewery, brew)));
