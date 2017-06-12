@@ -16,10 +16,22 @@ import static java.util.Comparator.comparing;
  */
 public class BestReinsertion {
 
+    public static Tour multipleOptimization(final Tour tour) {
+        Tour optimisedTour = new Tour(tour);
+
+        double lastDistance = 0;
+        while (lastDistance != optimisedTour.distance()) {
+            lastDistance = optimisedTour.distance();
+            optimisedTour = BestReinsertion.optimiseTour(optimisedTour);
+        }
+
+        return optimisedTour;
+    }
+
     public static Tour optimiseTour(final Tour initialSolution) {
         System.out.println(String.format(
                 "Initial solution distance: %.1f; beers: %d",
-                initialSolution.getDistance(),
+                initialSolution.distance(),
                 initialSolution.beerCount()
         ));
 
@@ -30,7 +42,7 @@ public class BestReinsertion {
                         (tour, brewery) -> bestInsertion(brewery, tour),
                         (tour1, tour2) -> tour1
                 );
-        final double remainingDistance = TRAVEL_DISTANCE - best.getDistance();
+        final double remainingDistance = TRAVEL_DISTANCE - best.distance();
 
         return getPossibleBreweries().stream()
                 .filter(brew -> !initialSolution.breweries().contains(brew))
@@ -60,7 +72,7 @@ public class BestReinsertion {
 
         return IntStream.range(1, slicedTour.breweries().size() - 1)
                 .mapToObj(id -> slicedTour.insertAt(id, brewery))
-                .max(comparing(tour -> tour.beerCount() / tour.getDistance()))
+                .max(comparing(tour -> tour.beerCount() / tour.distance()))
                 .filter(currentTour::isBetterThan)
                 .orElse(currentTour);
     }

@@ -39,7 +39,7 @@ public class MainPane extends BorderPane {
 
         statusBar.factoriesText(String.format("Breweries visited: %d", currentTour.breweriesCount()));
         statusBar.beersText(String.format("Beers collected: %d", currentTour.beerCount()));
-        statusBar.distanceText(String.format("Distance travelled: %.1f km", currentTour.getDistance()));
+        statusBar.distanceText(String.format("Distance travelled: %.1f km", currentTour.distance()));
         statusBar.runtimeText(String.format("Created route in %d ms", total));
 
         canvas.setupNewOrigin(ORIGIN, getPossibleBreweries());
@@ -48,7 +48,7 @@ public class MainPane extends BorderPane {
         System.out.println("Created route in " + total + " ms");
         System.out.println(String.format(
                 "Total distance: %.1f; Total beer: %d",
-                currentTour.getDistance(),
+                currentTour.distance(),
                 currentTour.beerCount()
         ));
     }
@@ -60,7 +60,7 @@ public class MainPane extends BorderPane {
 
         statusBar.factoriesText(String.format("Breweries visited: %d", currentTour.breweriesCount()));
         statusBar.beersText(String.format("Beers collected: %d", currentTour.beerCount()));
-        statusBar.distanceText(String.format("Distance travelled: %.1f km", currentTour.getDistance()));
+        statusBar.distanceText(String.format("Distance travelled: %.1f km", currentTour.distance()));
         statusBar.runtimeText(String.format("Optimised route in %d ms", total));
 
         canvas.setupRoute(currentTour);
@@ -68,7 +68,7 @@ public class MainPane extends BorderPane {
         System.out.println("Optimised route in " + total + " ms");
         System.out.println(String.format(
                 "Total distance: %.1f; Total beer: %d",
-                currentTour.getDistance(),
+                currentTour.distance(),
                 currentTour.beerCount()
         ));
     }

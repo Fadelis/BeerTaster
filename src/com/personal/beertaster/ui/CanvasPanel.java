@@ -37,7 +37,7 @@ public class CanvasPanel extends Pane {
 
         getChildren().addAll(elementGroup);
 
-        Rectangle clipRectangle = new Rectangle();
+        final Rectangle clipRectangle = new Rectangle();
         clipRectangle.widthProperty().bind(widthProperty());
         clipRectangle.heightProperty().bind(heightProperty());
         setClip(clipRectangle);
@@ -65,7 +65,6 @@ public class CanvasPanel extends Pane {
                 .forEach(BreweryCircle::setVisitable);
 
         translateBasedOnOrigin(origin);
-        scale();
     }
 
     public void setupRoute(final Tour tour) {
@@ -90,7 +89,7 @@ public class CanvasPanel extends Pane {
         }
 
         routeContainer.getChildren().setAll(route);
-        gestures.scaleElementSize();
+        scale();
     }
 
     private void translateBasedOnOrigin(final Brewery origin) {
@@ -103,8 +102,9 @@ public class CanvasPanel extends Pane {
     }
 
     void scale() {
+        gestures.reset();
         final List<BreweryCircle> visitableCircles = circles.stream()
-                .filter(BreweryCircle::isVisitable)
+                .filter(BreweryCircle::isVisited)
                 .collect(Collectors.toList());
 
         final double width = getWidth() / 2 - PADDING;

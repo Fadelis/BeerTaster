@@ -33,7 +33,7 @@ public class SimulatedAnnealing {
 
         System.out.println(String.format(
                 "Initial solution distance: %.1f; beers: %d",
-                currentSolution.getDistance(),
+                currentSolution.distance(),
                 currentSolution.beerCount()
         ));
 
@@ -53,7 +53,7 @@ public class SimulatedAnnealing {
             }
 
             // Keep track of the best solution found
-            if (currentSolution.getDistance() < best.getDistance()) {
+            if (currentSolution.distance() < best.distance()) {
                 best = new Tour(currentSolution);
             }
 
@@ -63,7 +63,7 @@ public class SimulatedAnnealing {
 
         System.out.println(String.format(
                 "Final solution distance: %.1f; beers: %d",
-                best.getDistance(),
+                best.distance(),
                 best.beerCount()
         ));
 
@@ -92,9 +92,9 @@ public class SimulatedAnnealing {
             final double degradation
     ) {
         // Get energy of solutions
-        final double bestEnergy = bestTour.getDistance();
-        final double energy = currentTour.getDistance();
-        final double newEnergy = newTour.getDistance();
+        final double bestEnergy = bestTour.distance();
+        final double energy = currentTour.distance();
+        final double newEnergy = newTour.distance();
 
         // If the new solution is better, accept it
         if (newEnergy < energy) {

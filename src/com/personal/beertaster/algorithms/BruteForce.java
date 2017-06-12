@@ -72,7 +72,7 @@ public class BruteForce {
                     counter,
                     possibleBestTour.breweriesCount(),
                     possibleBestTour.beerCount(),
-                    possibleBestTour.getDistance()
+                    possibleBestTour.distance()
             ));
         }
 

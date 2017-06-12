@@ -92,30 +92,30 @@ public class CanvasGestures {
      * @param x
      * @param y
      */
-    public void zoom(Node node, double factor, double x, double y) {
-        double oldScale = getScale();
+    public void zoom(final Node node, final double factor, final double x, final double y) {
+        final double oldScale = getScale();
         double scale = oldScale * factor;
         if (scale < MIN_SCALE) scale = MIN_SCALE;
         if (scale > MAX_SCALE) scale = MAX_SCALE;
         setScale(scale);
 
-        double f = (scale / oldScale) - 1;
+        final double f = (scale / oldScale) - 1;
 
-        Bounds localBounds = node.getBoundsInLocal();
-        Bounds layoutBounds = node.getLayoutBounds();
-        double minX = localBounds.getMinX() - layoutBounds.getMinX();
-        double minY = localBounds.getMinY() - layoutBounds.getMinY();
-        double width = layoutBounds.getWidth();
-        double height = layoutBounds.getHeight();
+        final Bounds localBounds = node.getBoundsInLocal();
+        final Bounds layoutBounds = node.getLayoutBounds();
+        final double minX = localBounds.getMinX() - layoutBounds.getMinX();
+        final double minY = localBounds.getMinY() - layoutBounds.getMinY();
+        final double width = layoutBounds.getWidth();
+        final double height = layoutBounds.getHeight();
 
-        Bounds mainBounds = new BoundingBox(minX, minY, width, height);
-        Bounds bounds = node.localToScene(mainBounds);
+        final Bounds mainBounds = new BoundingBox(minX, minY, width, height);
+        final Bounds bounds = node.localToScene(mainBounds);
 
-        double dx = (x - bounds.getMinX());
-        double dy = (y - bounds.getMinY());
+        final double dx = (x - bounds.getMinX());
+        final double dy = (y - bounds.getMinY());
 
-        double pivotX = node.getTranslateX() - f * dx;
-        double pivotY = node.getTranslateY() - f * dy;
+        final double pivotX = node.getTranslateX() - f * dx;
+        final double pivotY = node.getTranslateY() - f * dy;
 
         node.setTranslateX(pivotX);
         node.setTranslateY(pivotY);
@@ -123,12 +123,12 @@ public class CanvasGestures {
         scaleElementSize();
     }
 
-    public void zoom(Node node, ScrollEvent event) {
+    public void zoom(final Node node, final ScrollEvent event) {
         if (event.isDirect()) return;
         zoom(node, Math.pow(1.005, event.getDeltaY()), event.getSceneX(), event.getSceneY());
     }
 
-    public void zoom(Node node, ZoomEvent event) {
+    public void zoom(final Node node, final ZoomEvent event) {
         zoom(node, event.getZoomFactor(), event.getSceneX(), event.getSceneY());
     }
 
@@ -147,7 +147,7 @@ public class CanvasGestures {
         });
     }
 
-    private void reset() {
+    public void reset() {
         setScale(1D);
         this.canvas.setTranslateX(0D);
         this.canvas.setTranslateY(0D);
@@ -155,9 +155,8 @@ public class CanvasGestures {
         scaleElementSize();
     }
 
-    public void setScale(double scale) {
+    public void setScale(final double scale) {
         this.scale.set(scale);
-        //this.panel.scale();
     }
 
     public double getScale() {

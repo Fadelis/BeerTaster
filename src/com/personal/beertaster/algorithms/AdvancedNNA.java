@@ -39,7 +39,7 @@ public class AdvancedNNA {
             final Brewery bestCandidate = possibleBreweries.stream()
                     .map(brewery -> new SimpleEntry<>(brewery, lookAheadTour(brewery, tour)))
                     .filter(entry -> Objects.nonNull(entry.getValue()))
-                    .min(comparing(entry -> entry.getValue().getDistance() / entry.getValue().beerCount()))
+                    .min(comparing(entry -> entry.getValue().distance() / entry.getValue().beerCount()))
                     .map(SimpleEntry::getKey)
                     .orElse(ORIGIN);
 
@@ -62,35 +62,20 @@ public class AdvancedNNA {
         final Tour lookAheadTour = new Tour(currentTour);
         lookAheadTour.addBrewery(startBrewery);
 
-        Brewery currentBrewery = startBrewery;
         while (lookAheadTour.breweries().size() < currentTour.tourSize() + LOOK_AHEAD + 1) {
-            final Optional<Brewery> maybeBrewery = findBestNeighbour(currentBrewery, lookAheadTour);
+            final Brewery lastBrewery = lookAheadTour.lastBrewery();
+            final Optional<Brewery> maybeBrewery = getPossibleBreweries().stream()
+                    .filter(brew -> !lookAheadTour.breweries().contains(brew))
+                    .filter(lookAheadTour::possibleToInsert)
+                    .max(comparing(brew -> brew.getBeerCount() / distanceBetween(lastBrewery, brew)));
 
             if (maybeBrewery.isPresent()) {
                 lookAheadTour.addBrewery(maybeBrewery.get());
-                currentBrewery = maybeBrewery.get();
             } else {
                 break;
             }
         }
 
         return lookAheadTour;
-    }
-
-    /**
-     * Find best fitting neighbour, which yields most beer per traveled kilometer.
-     */
-    private static Optional<Brewery> findBestNeighbour(
-            final Brewery brewery,
-            final Tour currentTour
-    ) {
-        if (brewery == null) {
-            return Optional.empty();
-        }
-
-        return getPossibleBreweries().stream()
-                .filter(brew -> !currentTour.breweries().contains(brew))
-                .filter(currentTour::possibleToInsert)
-                .max(comparing(brew -> brew.getBeerCount() / distanceBetween(brewery, brew)));
     }
 }

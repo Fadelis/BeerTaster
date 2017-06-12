@@ -86,6 +86,10 @@ public class BreweryCircle extends Circle {
         return style == CircleStyle.VISITABLE;
     }
 
+    public boolean isVisited() {
+        return style == CircleStyle.VISITED;
+    }
+
     public boolean isOrigin() {
         return style == CircleStyle.ORIGIN;
     }

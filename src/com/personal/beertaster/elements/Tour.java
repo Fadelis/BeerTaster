@@ -57,6 +57,10 @@ public class Tour {
         return breweries.get(tourPosition);
     }
 
+    public Brewery lastBrewery() {
+        return breweries.get(breweries.size() - 1);
+    }
+
     public void setBrewery(final int tourPosition, final Brewery brewery) {
         breweries.set(tourPosition, brewery);
         distance = 0;
@@ -74,7 +78,7 @@ public class Tour {
     }
 
     // Get the total distance of the tour
-    public double getDistance() {
+    public double distance() {
         if (distance == 0) {
             distance = IntStream.range(1, breweries.size())
                     .mapToDouble(i -> distanceBetween(breweries.get(i - 1), breweries.get(i))).sum();
@@ -95,8 +99,8 @@ public class Tour {
     }
 
     public boolean isBetterThan(final Tour maybeBetterTour) {
-        final double distance = getDistance();
-        final double newDistance = maybeBetterTour.getDistance();
+        final double distance = distance();
+        final double newDistance = maybeBetterTour.distance();
         final int beerCount = beerCount();
         final int newBeerCount = maybeBetterTour.beerCount();
 
@@ -113,9 +117,8 @@ public class Tour {
             return false;
         }
 
-        final Brewery lastBrewery = breweries.get(breweries.size() - 1);
-        final double totalDistance = getDistance() +
-                distanceBetween(lastBrewery, brewery) +
+        final double totalDistance = distance() +
+                distanceBetween(lastBrewery(), brewery) +
                 distanceToOrigin(brewery);
 
         return totalDistance <= BreweryManager.TRAVEL_DISTANCE;
@@ -133,7 +136,7 @@ public class Tour {
                     .append(String.format("\t%s distance %.1fkm", breweries.get(i), distBetween));
         }
         sb.append(System.lineSeparator());
-        sb.append(String.format("Total distance travelled: %.1fkm", getDistance()));
+        sb.append(String.format("Total distance travelled: %.1fkm", distance()));
         sb.append(System.lineSeparator());
         sb.append(System.lineSeparator());
         sb.append(String.format("Collected %s beer types:", beerCount()));
