@@ -5,7 +5,7 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 
-import static com.personal.beertaster.algorithms.BreweryManager.distanceToOrigin;
+import static com.personal.beertaster.main.BreweryManager.distanceToOrigin;
 
 /**
  * @author DATA-DOG Team
@@ -53,6 +53,10 @@ public class BreweryCircle extends Circle {
 
     public double getY() {
         return brewery.getCoordinates().getY();
+    }
+
+    public double getWeight() {
+        return isOrigin() ? 10D : Math.max(0, brewery().getBeerCount() + 1);
     }
 
     public String getTooltip() {

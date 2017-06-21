@@ -2,8 +2,9 @@
  * NEPASITEISINO
  */
 
-package com.personal.beertaster.algorithms;
+package com.personal.beertaster.algorithms.routers;
 
+import com.personal.beertaster.algorithms.Router;
 import com.personal.beertaster.elements.Brewery;
 import com.personal.beertaster.elements.Tour;
 
@@ -12,16 +13,17 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.personal.beertaster.algorithms.BreweryManager.*;
+import static com.personal.beertaster.main.BreweryManager.*;
 import static java.util.Comparator.comparing;
 
-public class BruteForce {
+public class BruteForceRouter implements Router {
 
     private static final int BREWERIES_COUNT_CHECK = 2;
     private static final int MAX_ITERATIONS = 10000;
     private static int counter;
 
-    public static Tour planBruteForce() {
+    @Override
+    public Tour planRoute() {
         final List<Brewery> possibleBreweries = getPossibleBreweries().stream()
                 .filter(Brewery::containsBeer)
                 .collect(Collectors.toList());
@@ -39,7 +41,7 @@ public class BruteForce {
         return bestTour;
     }
 
-    private static Tour recursivePlanner(
+    private Tour recursivePlanner(
             final Tour bestTour,
             final Tour currentTour,
             final List<Brewery> possibleBreweries
@@ -86,4 +88,8 @@ public class BruteForce {
 
         return newList;
     }
+
+
+    @Override
+    public String toString() { return "Brute Force Router"; }
 }

@@ -4,8 +4,6 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
 
-import static com.personal.beertaster.algorithms.BreweryManager.distanceBetween;
-
 /**
  * @author DATA-DOG Team
  */
@@ -41,7 +39,7 @@ public class BreweryLine extends Line {
                 .append(System.lineSeparator())
                 .append(String.format("To: %s", to.brewery().toString()))
                 .append(System.lineSeparator())
-                .append(String.format("Travel distance: %.1f km", distanceBetween(from.brewery(), to.brewery())))
+                .append(String.format("Travel distance: %.1f km", from.brewery().getDistance(to.brewery())))
                 .toString();
     }
 }

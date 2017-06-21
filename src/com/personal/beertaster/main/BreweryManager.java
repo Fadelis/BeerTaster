@@ -1,4 +1,4 @@
-package com.personal.beertaster.algorithms;
+package com.personal.beertaster.main;
 
 import com.personal.beertaster.elements.Brewery;
 import com.personal.beertaster.utilities.Converter;

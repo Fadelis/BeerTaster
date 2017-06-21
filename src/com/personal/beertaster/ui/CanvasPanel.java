@@ -2,15 +2,13 @@ package com.personal.beertaster.ui;
 
 import com.personal.beertaster.elements.Brewery;
 import com.personal.beertaster.elements.Tour;
+import com.personal.beertaster.main.BreweryManager;
 import javafx.scene.Group;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 
-import java.util.ArrayList;
-import java.util.DoubleSummaryStatistics;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.summarizingDouble;
@@ -87,6 +85,26 @@ public class CanvasPanel extends Pane {
 
             current = next;
         }
+
+        routeContainer.getChildren().setAll(route);
+        scale();
+    }
+
+    public void setupClusters(final Map<Brewery, Set<Brewery>> clusters) {
+        route.clear();
+        circles.removeIf(circle -> circle.isOrigin() && !Objects.equals(circle.brewery(), BreweryManager.ORIGIN));
+
+        clusters.forEach((centroid, elements) -> {
+            final BreweryCircle centroidCircle = new BreweryCircle(centroid, BreweryCircle.CircleStyle.ORIGIN);
+            circles.add(centroidCircle);
+
+            elements.stream()
+                    .map(brewery -> circles.stream()
+                            .filter(circle -> Objects.equals(brewery, circle.brewery()))
+                            .findFirst()
+                            .orElseThrow(() -> new IllegalArgumentException("Could not find routed brewery!")))
+                    .forEach(brewery -> route.add(new BreweryLine(centroidCircle, brewery, 0)));
+        });
 
         routeContainer.getChildren().setAll(route);
         scale();

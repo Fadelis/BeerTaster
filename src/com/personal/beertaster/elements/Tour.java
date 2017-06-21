@@ -1,13 +1,13 @@
 package com.personal.beertaster.elements;
 
-import com.personal.beertaster.algorithms.BreweryManager;
+import com.personal.beertaster.main.BreweryManager;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.IntStream;
 
-import static com.personal.beertaster.algorithms.BreweryManager.*;
+import static com.personal.beertaster.main.BreweryManager.*;
 
 public class Tour {
 

@@ -8,10 +8,12 @@ vienas nuo kito issideste kas 40 km, kurie turi po 4 alaus rusys. Aplanke siuos 
 nukeliautume 160km ir surinktume 12 rusiu alaus.
 */
 
-package com.personal.beertaster.algorithms;
+package com.personal.beertaster.algorithms.routers;
 
+import com.personal.beertaster.algorithms.Router;
 import com.personal.beertaster.elements.Brewery;
 import com.personal.beertaster.elements.Tour;
+import com.personal.beertaster.main.BreweryManager;
 
 import java.util.AbstractMap.SimpleEntry;
 import java.util.List;
@@ -19,14 +21,15 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static com.personal.beertaster.algorithms.BreweryManager.*;
+import static com.personal.beertaster.main.BreweryManager.*;
 import static java.util.Comparator.comparing;
 
-public class AdvancedNNA {
+public class LookAheadRouter implements Router {
 
     private static final int LOOK_AHEAD = 2;
 
-    public static Tour planAdvancedNNA() {
+    @Override
+    public Tour planRoute() {
         final List<Brewery> possibleBreweries = BreweryManager.getPossibleBreweries().stream()
                 .filter(Brewery::containsBeer)
                 .collect(Collectors.toList());
@@ -54,7 +57,7 @@ public class AdvancedNNA {
         return tour;
     }
 
-    private static Tour lookAheadTour(final Brewery startBrewery, final Tour currentTour) {
+    private Tour lookAheadTour(final Brewery startBrewery, final Tour currentTour) {
         if (!currentTour.possibleToInsert(startBrewery)) {
             return null;
         }
@@ -78,4 +81,8 @@ public class AdvancedNNA {
 
         return lookAheadTour;
     }
+
+
+    @Override
+    public String toString() { return "Look Ahead Router"; }
 }

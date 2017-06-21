@@ -1,7 +1,9 @@
-package com.personal.beertaster.algorithms;
+package com.personal.beertaster.algorithms.optimisers;
 
+import com.personal.beertaster.algorithms.Optimiser;
 import com.personal.beertaster.elements.Brewery;
 import com.personal.beertaster.elements.Tour;
+import com.personal.beertaster.main.BreweryManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,9 +12,10 @@ import java.util.stream.IntStream;
 /**
  * @author DATA-DOG Team
  */
-public class SimulatedAnnealing {
+public class SimulatedAnnealing implements Optimiser {
 
-    public static Tour optimiseTour(final Tour initialSolution) {
+    @Override
+    public Tour optimiseTour(final Tour initialSolution) {
         // Set initial temp
         double temp = 100000;
 
@@ -103,4 +106,7 @@ public class SimulatedAnnealing {
         // If the new solution is worse, calculate an acceptance probability
         return newEnergy < bestEnergy * (1 + degradation);
     }
+
+    @Override
+    public String toString() { return "Simulated Annealing"; }
 }

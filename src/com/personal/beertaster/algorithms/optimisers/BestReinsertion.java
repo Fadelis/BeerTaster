@@ -1,5 +1,6 @@
-package com.personal.beertaster.algorithms;
+package com.personal.beertaster.algorithms.optimisers;
 
+import com.personal.beertaster.algorithms.Optimiser;
 import com.personal.beertaster.elements.Brewery;
 import com.personal.beertaster.elements.Tour;
 
@@ -8,27 +9,28 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.IntStream;
 
-import static com.personal.beertaster.algorithms.BreweryManager.*;
+import static com.personal.beertaster.main.BreweryManager.*;
 import static java.util.Comparator.comparing;
 
 /**
  * @author DATA-DOG Team
  */
-public class BestReinsertion {
+public class BestReinsertion implements Optimiser {
 
-    public static Tour multipleOptimization(final Tour tour) {
+    public Tour multipleOptimization(final Tour tour) {
         Tour optimisedTour = new Tour(tour);
 
         double lastDistance = 0;
         while (lastDistance != optimisedTour.distance()) {
             lastDistance = optimisedTour.distance();
-            optimisedTour = BestReinsertion.optimiseTour(optimisedTour);
+            optimisedTour = optimiseTour(optimisedTour);
         }
 
         return optimisedTour;
     }
 
-    public static Tour optimiseTour(final Tour initialSolution) {
+    @Override
+    public Tour optimiseTour(final Tour initialSolution) {
         System.out.println(String.format(
                 "Initial solution distance: %.1f; beers: %d",
                 initialSolution.distance(),
@@ -76,4 +78,7 @@ public class BestReinsertion {
                 .filter(currentTour::isBetterThan)
                 .orElse(currentTour);
     }
+
+    @Override
+    public String toString() { return "Best Reinsertion"; }
 }

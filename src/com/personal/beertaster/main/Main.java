@@ -1,6 +1,5 @@
 package com.personal.beertaster.main;
 
-import com.personal.beertaster.algorithms.BreweryManager;
 import com.personal.beertaster.ui.MainPane;
 import javafx.application.Application;
 import javafx.scene.Scene;

@@ -1,19 +1,45 @@
 package com.personal.beertaster.ui;
 
-import com.personal.beertaster.algorithms.BestReinsertion;
-import com.personal.beertaster.algorithms.SimpleNNA;
+import com.personal.beertaster.algorithms.KMeansClustering;
+import com.personal.beertaster.algorithms.Optimiser;
+import com.personal.beertaster.algorithms.Router;
+import com.personal.beertaster.algorithms.optimisers.BestReinsertion;
+import com.personal.beertaster.algorithms.optimisers.SimulatedAnnealing;
+import com.personal.beertaster.algorithms.routers.BruteForceRouter;
+import com.personal.beertaster.algorithms.routers.LookAheadRouter;
+import com.personal.beertaster.algorithms.routers.SimpleOptimisedRouter;
+import com.personal.beertaster.algorithms.routers.SimpleRouter;
+import com.personal.beertaster.elements.Brewery;
+import com.personal.beertaster.elements.Coordinates;
 import com.personal.beertaster.elements.Tour;
+import com.personal.beertaster.main.BreweryManager;
 import javafx.scene.layout.BorderPane;
 
-import static com.personal.beertaster.algorithms.BreweryManager.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import static com.personal.beertaster.main.BreweryManager.*;
 
 /**
  * @author DATA-DOG Team
  */
 public class MainPane extends BorderPane {
 
+    private static final List<Router> ROUTERS = Arrays.asList(
+            new SimpleRouter(),
+            new SimpleOptimisedRouter(),
+            new LookAheadRouter(),
+            new BruteForceRouter()
+    );
+    private static final List<Optimiser> OPTIMISERS = Arrays.asList(
+            new BestReinsertion(),
+            new SimulatedAnnealing()
+    );
+
     private final CanvasPanel canvas = new CanvasPanel();
-    private final MainToolBar toolBar = new MainToolBar();
+    private final MainToolBar toolBar = new MainToolBar(ROUTERS, OPTIMISERS);
     private final StatusBar statusBar = new StatusBar();
 
     private Tour currentTour;
@@ -21,20 +47,21 @@ public class MainPane extends BorderPane {
     public MainPane() {
         toolBar.setOnRouteCallback(this::createRoute);
         toolBar.setOnOptimiseCallback(this::optimiseRoute);
+        toolBar.setOnClusterCallback(this::clusterBreweries);
 
         setCenter(canvas);
         setTop(toolBar);
         setBottom(statusBar);
 
         canvas.setupAllBreweries(ORIGIN, getBreweryList());
-        createRoute(ORIGIN.getCoordinates().getLatitude(), ORIGIN.getCoordinates().getLongitude());
+        createRoute(ORIGIN.getCoordinates(), new SimpleRouter());
     }
 
-    private void createRoute(final double latitude, final double longitude) {
-        setOriginLocation(latitude, longitude);
+    private void createRoute(final Coordinates coordinates, final Router routePlanner) {
+        setOriginLocation(coordinates.getLatitude(), coordinates.getLongitude());
 
         final long start = System.currentTimeMillis();
-        currentTour = planRoute();
+        currentTour = routePlanner.planRoute();
         final long total = System.currentTimeMillis() - start;
 
         statusBar.factoriesText(String.format("Breweries visited: %d", currentTour.breweriesCount()));
@@ -53,9 +80,9 @@ public class MainPane extends BorderPane {
         ));
     }
 
-    private void optimiseRoute() {
+    private void optimiseRoute(final Optimiser optimiser) {
         final long start = System.currentTimeMillis();
-        currentTour = BestReinsertion.optimiseTour(currentTour);
+        currentTour = optimiser.optimiseTour(currentTour);
         final long total = System.currentTimeMillis() - start;
 
         statusBar.factoriesText(String.format("Breweries visited: %d", currentTour.breweriesCount()));
@@ -73,13 +100,14 @@ public class MainPane extends BorderPane {
         ));
     }
 
-    private static Tour planRoute() {
-        final Tour tour = SimpleNNA.planSimpleNNA();
-        //final Tour tour = AdvancedNNA.planAdvancedNNA();
-        //final Tour tour = BruteForce.planBruteForce();
+    private void clusterBreweries() {
+        final long start = System.currentTimeMillis();
+        final Map<Brewery, Set<Brewery>> clusters = new KMeansClustering()
+                .clusterBreweries(BreweryManager.getBreweryList());
+        final long total = System.currentTimeMillis() - start;
 
-        System.out.println(tour.toString());
+        canvas.setupClusters(clusters);
 
-        return tour;
+        statusBar.runtimeText(String.format("Clustered in %d ms", total));
     }
 }
