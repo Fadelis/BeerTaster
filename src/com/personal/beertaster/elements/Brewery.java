@@ -70,6 +70,10 @@ public class Brewery {
         this.coordinates = new Coordinates(lat, lon);
     }
 
+    public void setCoordinates(final Coordinates coordinates) {
+        this.coordinates = coordinates;
+    }
+
     public Coordinates getCoordinates() {
         return this.coordinates;
     }

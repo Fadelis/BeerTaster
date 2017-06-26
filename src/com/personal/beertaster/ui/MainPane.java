@@ -1,6 +1,6 @@
 package com.personal.beertaster.ui;
 
-import com.personal.beertaster.algorithms.KMeansClustering;
+import com.personal.beertaster.algorithms.DBSCANClustering;
 import com.personal.beertaster.algorithms.Optimiser;
 import com.personal.beertaster.algorithms.Router;
 import com.personal.beertaster.algorithms.optimisers.BestReinsertion;
@@ -102,7 +102,7 @@ public class MainPane extends BorderPane {
 
     private void clusterBreweries() {
         final long start = System.currentTimeMillis();
-        final Map<Brewery, Set<Brewery>> clusters = new KMeansClustering()
+        final Map<Brewery, Set<Brewery>> clusters = new DBSCANClustering()
                 .clusterBreweries(BreweryManager.getBreweryList());
         final long total = System.currentTimeMillis() - start;
 

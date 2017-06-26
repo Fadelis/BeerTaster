@@ -57,11 +57,13 @@ public class CanvasPanel extends Pane {
     }
 
     public void setupNewOrigin(final Brewery origin, final List<Brewery> visitableBreweries) {
+        circles.removeIf(circle -> circle.isOrigin() && !Objects.equals(circle.brewery(), BreweryManager.ORIGIN));
         circles.forEach(BreweryCircle::setNormal);
         circles.stream()
                 .filter(circle -> visitableBreweries.contains(circle.brewery()))
                 .forEach(BreweryCircle::setVisitable);
 
+        circlesContainer.getChildren().setAll(circles);
         translateBasedOnOrigin(origin);
     }
 
@@ -106,7 +108,9 @@ public class CanvasPanel extends Pane {
                     .forEach(brewery -> route.add(new BreweryLine(centroidCircle, brewery, 0)));
         });
 
+        circlesContainer.getChildren().setAll(circles);
         routeContainer.getChildren().setAll(route);
+        translateBasedOnOrigin(BreweryManager.ORIGIN);
         scale();
     }
 
@@ -122,7 +126,7 @@ public class CanvasPanel extends Pane {
     void scale() {
         gestures.reset();
         final List<BreweryCircle> visitableCircles = circles.stream()
-                .filter(BreweryCircle::isVisited)
+                .filter(BreweryCircle::isVisitable)
                 .collect(Collectors.toList());
 
         final double width = getWidth() / 2 - PADDING;

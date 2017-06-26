@@ -21,6 +21,17 @@ public class Coordinates {
         this.y = getDistance(0, longitude) * Math.signum(latitude);
     }
 
+    public static Coordinates fromCartesianCoordinates(final double x, final double y) {
+        final Coordinates coordinates = new Coordinates();
+
+        coordinates.x = x;
+        coordinates.y = y;
+        coordinates.latitude = Double.NaN;
+        coordinates.longitude = Double.NaN;
+
+        return coordinates;
+    }
+
     public double getDistance(final Coordinates other) {
         return getDistance(this, other);
     }
@@ -45,6 +56,19 @@ public class Coordinates {
         final double a = Math.pow(Math.sin(dLat / 2), 2) + Math.pow(Math.sin(dLon / 2), 2) * Math.cos(lat1) * Math.cos(lat2);
         final double c = 2 * Math.asin(Math.sqrt(a));
         return R * c;
+    }
+
+    public double getEuclideanDistance(final Coordinates other) {
+        return euclideanDistance(this, other);
+    }
+
+    private static double euclideanDistance(final Coordinates p1, final Coordinates p2) {
+        if (p1 != null && p2 != null) {
+            final double d1 = p1.getX() - p2.getX();
+            final double d2 = p1.getY() - p2.getY();
+            return Math.sqrt(Math.abs(d1 * d1 + d2 * d2));
+        }
+        return 0;
     }
 
     public void setLatitude(final double value) {

@@ -13,7 +13,7 @@ import static java.util.stream.Collectors.*;
  */
 public class KMeansClustering {
 
-    private static final int CLUSTERS_NUMBER = 15;
+    private static final int CLUSTERS_NUMBER = 8;
 
     public Map<Brewery, Set<Brewery>> clusterBreweries(final List<Brewery> breweries) {
         // filter origin location
@@ -51,8 +51,9 @@ public class KMeansClustering {
                 .map(brewery -> new AbstractMap.SimpleEntry<>(
                         brewery,
                         centroids.stream()
-                                .min(Comparator.comparing(centroid -> centroid.getDistance(brewery)))
-                                .orElseThrow(() -> new IllegalArgumentException("No centroid found"))
+                                .min(Comparator.comparing(centroid ->
+                                        centroid.getCoordinates().getEuclideanDistance(brewery.getCoordinates())
+                                )).orElseThrow(() -> new IllegalArgumentException("No centroid found"))
                 )).collect(groupingBy(Map.Entry::getValue, mapping(Map.Entry::getKey, toSet())));
     }
 
@@ -72,7 +73,9 @@ public class KMeansClustering {
                 final double oldY = entry.getKey().getCoordinates().getY();
                 if (avgX.getAsDouble() != oldX || avgY.getAsDouble() != oldY) {
                     // FAIL need to create spatial coordinates from cartesian coordinates
-                    entry.getKey().setCoordinates(avgX.getAsDouble(), avgY.getAsDouble());
+                    final Coordinates newCoordinates = Coordinates
+                            .fromCartesianCoordinates(avgX.getAsDouble(), avgY.getAsDouble());
+                    entry.getKey().setCoordinates(newCoordinates);
                     return true;
                 }
                 return false;
