@@ -8,8 +8,10 @@ public class Coordinates {
   public static final double MIN_LONGITUDE = -180.0;
   public static final double MAX_LONGITUDE = 180.0;
 
-  private double latitude, longitude;
-  private double x, y;
+  private double latitude;
+  private double longitude;
+  private double x;
+  private double y;
 
   public Coordinates() {
   }
@@ -49,15 +51,19 @@ public class Coordinates {
     return 0;
   }
 
-  public static double getDistance(double lat1, final double lon1, double lat2, final double lon2) {
+  public static double getDistance(
+      final double lat1,
+      final double lon1,
+      final double lat2,
+      final double lon2
+  ) {
     final double dLat = Math.toRadians(lat2 - lat1);
     final double dLon = Math.toRadians(lon2 - lon1);
-    lat1 = Math.toRadians(lat1);
-    lat2 = Math.toRadians(lat2);
+    final double radLat1 = Math.toRadians(lat1);
+    final double radLat2 = Math.toRadians(lat2);
 
-    final double a =
-        Math.pow(Math.sin(dLat / 2), 2) + Math.pow(Math.sin(dLon / 2), 2) * Math.cos(lat1) * Math
-            .cos(lat2);
+    final double a = Math.pow(Math.sin(dLat / 2), 2) + Math.pow(Math.sin(dLon / 2), 2) *
+        Math.cos(radLat1) * Math.cos(radLat2);
     final double c = 2 * Math.asin(Math.sqrt(a));
     return R * c;
   }
@@ -75,16 +81,8 @@ public class Coordinates {
     return 0;
   }
 
-  public void setLatitude(final double value) {
-    this.latitude = value;
-  }
-
   public double getLatitude() {
     return this.latitude;
-  }
-
-  public void setLongitude(final double value) {
-    this.longitude = value;
   }
 
   public double getLongitude() {

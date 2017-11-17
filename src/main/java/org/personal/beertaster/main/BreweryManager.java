@@ -14,13 +14,17 @@ import org.personal.beertaster.utilities.Converter;
 public class BreweryManager {
 
   public static final double TRAVEL_DISTANCE = 2000;
-  public static final double DEFAULT_LAT = 51.355468, DEFAULT_LONG = 11.100790;
+  public static final double DEFAULT_LAT = 51.355468;
+  public static final double DEFAULT_LONG = 11.100790;
   public static final Brewery ORIGIN = new Brewery(-1, "HOME", "N/A", "N/A", 0, 0);
 
   private static List<Brewery> breweryList;
   private static Map<Brewery, Integer> breweryMap;
   private static List<Brewery> possibleBreweries;
   private static double[][] distanceMatrix;
+
+  private BreweryManager() {
+  }
 
   public static void initialize() throws Exception {
     breweryList = new ArrayList<>();

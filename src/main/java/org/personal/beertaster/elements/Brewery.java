@@ -1,12 +1,14 @@
 package org.personal.beertaster.elements;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class Brewery {
 
   private final int id;
   private String name;
-  private String country, city;
+  private String country;
+  private String city;
   private Coordinates coordinates;
   private ArrayList<Beer> beerList;
 
@@ -96,7 +98,7 @@ public class Brewery {
     }
   }
 
-  public ArrayList<Beer> getBeerList() {
+  public List<Beer> getBeerList() {
     return this.beerList;
   }
 

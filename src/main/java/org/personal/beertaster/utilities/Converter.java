@@ -1,5 +1,9 @@
 package org.personal.beertaster.utilities;
 
+import static java.lang.Double.parseDouble;
+import static java.lang.Integer.parseInt;
+
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -13,7 +17,10 @@ public class Converter {
 
   private static final String VAR_SEPARATOR = ",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)";
 
-  public static ArrayList<Brewery> readCSV() throws Exception {
+  private Converter() {
+  }
+
+  public static List<Brewery> readCSV() throws Exception {
     final HashMap<Integer, Brewery> breweryMap = new HashMap<>();
 
     //Read breweries CSV
@@ -85,10 +92,8 @@ public class Converter {
     return new ArrayList<>(breweryMap.values());
   }
 
-  private static List<String> getFileData(final String filePath) throws Exception {
-    final ClassLoader classloader = Thread.currentThread().getContextClassLoader();
-
-    return Files.readAllLines(Paths.get(classloader.getResource(filePath).toURI()));
+  private static List<String> getFileData(final String filePath) throws IOException {
+    return Files.readAllLines(Paths.get(filePath));
   }
 
   /**
@@ -105,31 +110,5 @@ public class Converter {
     } else {
       return str;
     }
-  }
-
-  private static int parseInt(String str) {
-    if (str == null || str.isEmpty()) {
-      return -1;
-    }
-    int value = -1;
-    str = str.replaceAll("[^0-9.,-]", "");
-    str = str.replaceAll(",", ".");
-    if (!str.isEmpty() && !str.equals(".") && !str.equals("-")) {
-      value = Integer.parseInt(str);
-    }
-    return value;
-  }
-
-  private static double parseDouble(String str) {
-    if (str == null || str.isEmpty()) {
-      return -1;
-    }
-    double value = -1;
-    str = str.replaceAll("[^0-9.,-]", "");
-    str = str.replaceAll(",", ".");
-    if (!str.isEmpty() && !str.equals(".") && !str.equals("-")) {
-      value = Double.parseDouble(str);
-    }
-    return value;
   }
 }

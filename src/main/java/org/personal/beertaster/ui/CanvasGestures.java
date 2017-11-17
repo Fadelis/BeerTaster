@@ -89,16 +89,16 @@ public class CanvasGestures {
    */
   public void zoom(final Node node, final double factor, final double x, final double y) {
     final double oldScale = getScale();
-    double scale = oldScale * factor;
-    if (scale < MIN_SCALE) {
-      scale = MIN_SCALE;
+    double newScale = oldScale * factor;
+    if (newScale < MIN_SCALE) {
+      newScale = MIN_SCALE;
     }
-    if (scale > MAX_SCALE) {
-      scale = MAX_SCALE;
+    if (newScale > MAX_SCALE) {
+      newScale = MAX_SCALE;
     }
-    setScale(scale);
+    setScale(newScale);
 
-    final double f = scale / oldScale - 1;
+    final double f = newScale / oldScale - 1;
 
     final Bounds localBounds = node.getBoundsInLocal();
     final Bounds layoutBounds = node.getLayoutBounds();

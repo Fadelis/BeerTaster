@@ -105,9 +105,7 @@ public class Tour {
   }
 
   public boolean isBetterThan(final Tour maybeBetterTour) {
-    final double distance = distance();
     final double newDistance = maybeBetterTour.distance();
-    final int beerCount = beerCount();
     final int newBeerCount = maybeBetterTour.beerCount();
 
     return distance > newDistance ||
@@ -132,9 +130,6 @@ public class Tour {
 
   @Override
   public String toString() {
-    if (breweries == null) {
-      return "";
-    }
     final StringBuilder sb = new StringBuilder();
     sb.append(String.format("Visited %s breweries", breweriesCount()));
     for (int i = 0; i < breweries.size(); i++) {
