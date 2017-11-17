@@ -28,7 +28,7 @@ public class Converter {
     final int INDEX_NAME = 1;
     final int INDEX_CITY = 4;
     final int INDEX_COUNTRY = 7;
-    List<String> rows = getFileData("resources/breweries.csv");
+    List<String> rows = getFileData("breweries.csv");
     for (int n = 1; n < rows.size(); n++) {
       final String[] splitFields = rows.get(n).split(VAR_SEPARATOR);
 
@@ -50,7 +50,7 @@ public class Converter {
     final int INDEX_BEER_NAME = 2;
     final int INDEX_BEER_CAT = 3;
     final int INDEX_BEER_STYLE = 4;
-    rows = getFileData("resources/beers.csv");
+    rows = getFileData("beers.csv");
     for (int n = 1; n < rows.size(); n++) {
       final String[] splitFields = rows.get(n).split(VAR_SEPARATOR);
 
@@ -73,7 +73,7 @@ public class Converter {
     //Read breweries geodata CSV and set them to breweries objects
     final int INDEX_LAT = 2;
     final int INDEX_LON = 3;
-    rows = getFileData("resources/geocodes.csv");
+    rows = getFileData("geocodes.csv");
     for (int n = 1; n < rows.size(); n++) {
       final String[] splitFields = rows.get(n).split(VAR_SEPARATOR);
 
@@ -92,8 +92,8 @@ public class Converter {
     return new ArrayList<>(breweryMap.values());
   }
 
-  private static List<String> getFileData(final String filePath) throws IOException {
-    return Files.readAllLines(Paths.get(filePath));
+  private static List<String> getFileData(final String fileName) throws IOException {
+    return Files.readAllLines(Paths.get(String.format("src/main/resources/%s", fileName)));
   }
 
   /**
