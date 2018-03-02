@@ -9,6 +9,7 @@ bravoru, kuriem uztektu kuro ir alplankyti ir grizti namo.
 package org.personal.beertaster.algorithms.routers;
 
 import static java.util.Comparator.comparing;
+import static org.personal.beertaster.main.BreweryManager.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +18,6 @@ import org.personal.beertaster.algorithms.Router;
 import org.personal.beertaster.algorithms.optimisers.BestReinsertion;
 import org.personal.beertaster.elements.Brewery;
 import org.personal.beertaster.elements.Tour;
-import org.personal.beertaster.main.BreweryManager;
 
 public class SimpleOptimisedRouter implements Router {
 
@@ -26,23 +26,20 @@ public class SimpleOptimisedRouter implements Router {
 
   @Override
   public Tour planRoute() {
-    System.out
-        .println("Total possible breweries - " + BreweryManager.getPossibleBreweries().size());
+    System.out.println("Total possible breweries - " + getPossibleBreweries().size());
 
-    final Tour initialRoute = new Tour().withBrewery(BreweryManager.ORIGIN);
+    final Tour initialRoute = new Tour().withBrewery(ORIGIN);
 
-    return BreweryManager.getPossibleBreweries().parallelStream()
+    return getPossibleBreweries().parallelStream()
         //.sorted(comparing(BreweryManager::distanceToOrigin))
-        .sorted(
-            comparing(brewery -> BreweryManager.distanceToOrigin(brewery) / brewery.getBeerCount()))
+        .sorted(comparing(brewery -> distanceToOrigin(brewery) / brewery.getBeerCount()))
         .limit(NUMBER_OF_FIRST_POINTS)
         .map(initialRoute::withBrewery)
         .map(this::fillRoute)
         .map(OPTIMISER::optimiseTour)
-        //.map(SimpleRouter::forceOptimize)
         .max(comparing(Tour::beerCount))
         .map(OPTIMISER::multipleOptimization)
-        .orElseGet(() -> initialRoute.withBrewery(BreweryManager.ORIGIN));
+        .orElseGet(() -> initialRoute.withBrewery(ORIGIN));
   }
 
   /**
@@ -50,23 +47,21 @@ public class SimpleOptimisedRouter implements Router {
    */
   private Tour fillRoute(final Tour initialTour) {
     final Tour solution = new Tour(initialTour);
-    final List<Brewery> tempPossibleBreweries = new ArrayList<>(
-        BreweryManager.getPossibleBreweries());
+    final List<Brewery> tempPossibleBreweries = new ArrayList<>(getPossibleBreweries());
     tempPossibleBreweries.removeAll(solution.breweries());
     tempPossibleBreweries.removeIf(brewery -> !solution.possibleToInsert(brewery));
 
     while (true) {
       final Brewery lastBrewery = solution.lastBrewery();
       final Brewery nextBrewery = tempPossibleBreweries.stream()
-          .max(comparing(brew -> brew.getBeerCount() / BreweryManager
-              .distanceBetween(lastBrewery, brew)))
-          .orElse(BreweryManager.ORIGIN);
+          .max(comparing(brew -> brew.getBeerCount() / distanceBetween(lastBrewery, brew)))
+          .orElse(ORIGIN);
 
       solution.addBrewery(nextBrewery);
       tempPossibleBreweries.remove(nextBrewery);
       tempPossibleBreweries.removeIf(brewery -> !solution.possibleToInsert(brewery));
 
-      if (Objects.equals(nextBrewery, BreweryManager.ORIGIN)) {
+      if (Objects.equals(nextBrewery, ORIGIN)) {
         break;
       }
     }

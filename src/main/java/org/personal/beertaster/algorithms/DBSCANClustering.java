@@ -23,6 +23,19 @@ public class DBSCANClustering {
   private static final int MIN_SIZE = 4;
   private static final double MAX_DISTANCE = 500;
 
+  private final int minSize;
+  private final double maxDistance;
+
+  public DBSCANClustering() {
+    this.minSize = MIN_SIZE;
+    this.maxDistance = MAX_DISTANCE;
+  }
+
+  public DBSCANClustering(final int minSize, final double maxDistance) {
+    this.minSize = minSize;
+    this.maxDistance = maxDistance;
+  }
+
   public Map<Brewery, Set<Brewery>> clusterBreweries(final List<Brewery> breweries) {
     final Map<Brewery, Boolean> possibleBreweries = breweries.stream()
         .filter(brewery -> brewery.getID() > 0)
@@ -33,7 +46,7 @@ public class DBSCANClustering {
         .filter(brewery -> !possibleBreweries.get(brewery))
         .peek(neighbour -> possibleBreweries.put(neighbour, true))
         .map(brewery -> neighbours(brewery, possibleBreweries.keySet()))
-        .filter(possibleNeighbours -> possibleNeighbours.size() >= MIN_SIZE)
+        .filter(possibleNeighbours -> possibleNeighbours.size() >= minSize)
         .map(neighbours -> createCluster(neighbours, possibleBreweries))
         .map(this::createCentroid)
         .filter(Objects::nonNull)
@@ -73,7 +86,7 @@ public class DBSCANClustering {
           .filter(brewery -> !possibleBreweries.get(brewery))
           .peek(neighbour -> possibleBreweries.put(neighbour, true))
           .map(neighbour -> neighbours(neighbour, possibleBreweries.keySet()))
-          .filter(possibleNeighbours -> possibleNeighbours.size() >= MIN_SIZE)
+          .filter(possibleNeighbours -> possibleNeighbours.size() >= minSize)
           .flatMap(Set::stream)
           .collect(Collectors.toSet());
       cluster.addAll(nextNeighbours);
@@ -84,7 +97,7 @@ public class DBSCANClustering {
 
   private Set<Brewery> neighbours(final Brewery brewery, final Set<Brewery> breweries) {
     return breweries.stream()
-        .filter(neighbour -> BreweryManager.distanceBetween(brewery, neighbour) <= MAX_DISTANCE)
+        .filter(neighbour -> BreweryManager.distanceBetween(brewery, neighbour) <= maxDistance)
         .collect(Collectors.toSet());
   }
 }

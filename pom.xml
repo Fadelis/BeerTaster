@@ -53,10 +53,6 @@
           <execution>
             <id>pmd-check</id>
             <phase>validate</phase>
-            <configuration>
-              <failOnViolation>true</failOnViolation>
-              <printFailingErrors>true</printFailingErrors>
-            </configuration>
             <goals>
               <goal>check</goal>
             </goals>
@@ -64,10 +60,6 @@
           <execution>
             <id>cpd-check</id>
             <phase>validate</phase>
-            <configuration>
-              <failOnViolation>false</failOnViolation>
-              <verbose>true</verbose>
-            </configuration>
             <goals>
               <goal>cpd-check</goal>
             </goals>
@@ -79,14 +71,11 @@
         <artifactId>findbugs-maven-plugin</artifactId>
         <version>3.0.3</version>
         <configuration>
-          <failOnError>true</failOnError>
-          <effort>Max</effort>
-          <threshold>Low</threshold>
-          <classFilesDirectory>${project.build.outputDirectory}</classFilesDirectory>
+          <threshold>High</threshold>
         </configuration>
         <executions>
           <execution>
-            <phase>test</phase>
+            <phase>validate</phase>
             <goals>
               <goal>check</goal>
             </goals>
@@ -146,16 +135,6 @@
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>findbugs-maven-plugin</artifactId>
         <version>3.0.3</version>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-javadoc-plugin</artifactId>
-        <version>2.10.3</version>
-      </plugin>
-      <plugin>
-        <groupId>org.asciidoctor</groupId>
-        <artifactId>asciidoctor-maven-plugin</artifactId>
-        <version>1.5.2.1</version>
       </plugin>
       <plugin>
         <groupId>org.jacoco</groupId>

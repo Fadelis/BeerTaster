@@ -9,6 +9,7 @@ import org.personal.beertaster.algorithms.DBSCANClustering;
 import org.personal.beertaster.algorithms.Optimiser;
 import org.personal.beertaster.algorithms.Router;
 import org.personal.beertaster.algorithms.optimisers.BestReinsertion;
+import org.personal.beertaster.algorithms.optimisers.LargeNeighbourhoodSearch;
 import org.personal.beertaster.algorithms.optimisers.SimulatedAnnealing;
 import org.personal.beertaster.algorithms.routers.BruteForceRouter;
 import org.personal.beertaster.algorithms.routers.LookAheadRouter;
@@ -32,6 +33,7 @@ public class MainPane extends BorderPane {
   );
   private static final List<Optimiser> OPTIMISERS = Arrays.asList(
       new BestReinsertion(),
+      new LargeNeighbourhoodSearch(),
       new SimulatedAnnealing()
   );
 
@@ -51,7 +53,7 @@ public class MainPane extends BorderPane {
     setBottom(statusBar);
 
     canvas.setupAllBreweries(BreweryManager.ORIGIN, BreweryManager.getBreweryList());
-    createRoute(BreweryManager.ORIGIN.getCoordinates(), new SimpleRouter());
+    createRoute(BreweryManager.ORIGIN.getCoordinates(), new SimpleOptimisedRouter());
   }
 
   private void createRoute(final Coordinates coordinates, final Router routePlanner) {
@@ -59,6 +61,7 @@ public class MainPane extends BorderPane {
 
     final long start = System.currentTimeMillis();
     currentTour = routePlanner.planRoute();
+    currentTour.isValid().ifPresent(System.out::println);
     final long total = System.currentTimeMillis() - start;
 
     statusBar.factoriesText(String.format("Breweries visited: %d", currentTour.breweriesCount()));
@@ -80,6 +83,7 @@ public class MainPane extends BorderPane {
   private void optimiseRoute(final Optimiser optimiser) {
     final long start = System.currentTimeMillis();
     currentTour = optimiser.optimiseTour(currentTour);
+    currentTour.isValid().ifPresent(System.out::println);
     final long total = System.currentTimeMillis() - start;
 
     statusBar.factoriesText(String.format("Breweries visited: %d", currentTour.breweriesCount()));

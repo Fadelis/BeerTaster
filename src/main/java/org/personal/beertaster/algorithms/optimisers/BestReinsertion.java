@@ -16,14 +16,14 @@ import org.personal.beertaster.elements.Tour;
  */
 public class BestReinsertion implements Optimiser {
 
-  private static final double EPS = 0.0001;
+  private static final double EPS = 0.00001;
 
   public Tour multipleOptimization(final Tour tour) {
     Tour optimisedTour = new Tour(tour);
 
-    double lastDistance = 0;
-    while (Math.abs(lastDistance - optimisedTour.distance()) < EPS) {
-      lastDistance = optimisedTour.distance();
+    double lastCost = 0;
+    while (Math.abs(lastCost - optimisedTour.cost()) > EPS) {
+      lastCost = optimisedTour.cost();
       optimisedTour = optimiseTour(optimisedTour);
     }
 
@@ -32,22 +32,13 @@ public class BestReinsertion implements Optimiser {
 
   @Override
   public Tour optimiseTour(final Tour initialSolution) {
-    System.out.println(String.format(
-        "Initial solution distance: %.1f; beers: %d",
-        initialSolution.distance(),
-        initialSolution.beerCount()
-    ));
-
     final Tour best = initialSolution.breweries().stream()
         .filter(brewery -> !Objects.equals(ORIGIN, brewery))
-        .reduce(
-            new Tour(initialSolution),
-            (tour, brewery) -> bestInsertion(brewery, tour),
-            (tour1, tour2) -> tour1
-        );
+        .reduce(new Tour(initialSolution), this::bestInsertion, (tour1, tour2) -> tour1);
+
     final double remainingDistance = TRAVEL_DISTANCE - best.distance();
 
-    return getPossibleBreweries().stream()
+    final Tour optimised = getPossibleBreweries().stream()
         .filter(brew -> !initialSolution.breweries().contains(brew))
         .map(brew -> new AbstractMap.SimpleEntry<>(
             brew,
@@ -59,24 +50,24 @@ public class BestReinsertion implements Optimiser {
         .sorted(comparing(Map.Entry::getValue))
         //.sorted(Comparator.comparing(brew -> brew.getValue() / brew.getKey().beerCount()))
         .map(Map.Entry::getKey)
-        .reduce(
-            new Tour(best),
-            (tour, brewery) -> bestInsertion(brewery, tour),
-            (tour1, tour2) -> tour1
-        );
+        .reduce(new Tour(best), this::bestInsertion, (tour1, tour2) -> tour1);
+
+    if (initialSolution.isBetter(optimised)) {
+      System.out.println(String.format(
+          "SUCCESS: distance: %.1f; Total beer: %d", optimised.distance(), optimised.beerCount()
+      ));
+    }
+    return optimised;
   }
 
-  private static Tour bestInsertion(
-      final Brewery brewery,
-      final Tour currentTour
-  ) {
+  private Tour bestInsertion(final Tour currentTour, final Brewery brewery) {
     final Tour slicedTour = new Tour(currentTour);
     slicedTour.removeBrewery(brewery);
 
-    return IntStream.range(1, slicedTour.breweries().size() - 1)
-        .mapToObj(id -> slicedTour.insertAt(id, brewery))
-        .max(comparing(tour -> tour.beerCount() / tour.distance()))
-        .filter(currentTour::isBetterThan)
+    return IntStream.range(1, slicedTour.breweries().size() - 1).boxed()
+        .max(comparing(position -> slicedTour.estimatedCost(brewery, position).orElse(0D)))
+        .map(position -> slicedTour.insertAt(brewery, position))
+        .filter(currentTour::isBetter)
         .orElse(currentTour);
   }
 

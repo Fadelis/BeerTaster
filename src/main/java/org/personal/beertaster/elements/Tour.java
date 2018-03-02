@@ -1,10 +1,17 @@
 package org.personal.beertaster.elements;
 
+import static java.lang.String.format;
+import static java.util.Optional.of;
+import static java.util.stream.Collectors.counting;
+import static java.util.stream.Collectors.groupingBy;
+import static org.personal.beertaster.main.BreweryManager.*;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.OptionalDouble;
 import java.util.stream.IntStream;
-import org.personal.beertaster.main.BreweryManager;
 
 public class Tour {
 
@@ -46,9 +53,6 @@ public class Tour {
   }
 
   public void removeBrewery(final Brewery brewery) {
-    if (brewery == null) {
-      return;
-    }
     breweries.remove(brewery);
     distance = 0;
     beerCount = 0;
@@ -71,9 +75,9 @@ public class Tour {
     beerCount = 0;
   }
 
-  public Tour insertAt(final int tourPosition, final Brewery brewery) {
+  public Tour insertAt(final Brewery brewery, final int position) {
     final Tour newTour = new Tour(this);
-    newTour.breweries.add(tourPosition, brewery);
+    newTour.breweries.add(position, brewery);
     return newTour;
   }
 
@@ -85,7 +89,7 @@ public class Tour {
   public double distance() {
     if (distance == 0) {
       distance = IntStream.range(1, breweries.size())
-          .mapToDouble(i -> BreweryManager.distanceBetween(breweries.get(i - 1), breweries.get(i)))
+          .mapToDouble(i -> distanceBetween(breweries.get(i - 1), breweries.get(i)))
           .sum();
     }
     return distance;
@@ -99,17 +103,29 @@ public class Tour {
     return beerCount;
   }
 
+  public double cost() {
+    return beerCount() / distance();
+  }
+
   public long breweriesCount() {
-    return breweries.stream().filter(brewery -> !Objects.equals(BreweryManager.ORIGIN, brewery))
+    return breweries.stream()
+        .filter(brewery -> !Objects.equals(ORIGIN, brewery))
         .count();
   }
 
-  public boolean isBetterThan(final Tour maybeBetterTour) {
+  /**
+   * @return true if given tour is better that this tour.
+   */
+  public boolean isBetter(final Tour maybeBetterTour) {
     final double newDistance = maybeBetterTour.distance();
     final int newBeerCount = maybeBetterTour.beerCount();
 
-    return distance > newDistance ||
-        newBeerCount > beerCount && newDistance <= BreweryManager.TRAVEL_DISTANCE;
+    if (newDistance > TRAVEL_DISTANCE || newBeerCount < beerCount()) {
+      return false;
+    } else if (newBeerCount > beerCount()) {
+      return true;
+    }
+    return newDistance < distance();
   }
 
   public int tourSize() {
@@ -122,29 +138,63 @@ public class Tour {
     }
 
     final double totalDistance = distance() +
-        BreweryManager.distanceBetween(lastBrewery(), brewery) +
-        BreweryManager.distanceToOrigin(brewery);
+        distanceBetween(lastBrewery(), brewery) +
+        distanceToOrigin(brewery);
 
-    return totalDistance <= BreweryManager.TRAVEL_DISTANCE;
+    return totalDistance <= TRAVEL_DISTANCE;
+  }
+
+  public OptionalDouble estimatedCost(final Brewery brewery, final int position) {
+    final double distFrom = distanceBetween(breweries.get(position - 1), brewery);
+    final double distTo = position < tourSize() ?
+        distanceBetween(breweries.get(position), brewery) :
+        distanceToOrigin(brewery);
+    final double oldFrom = distanceBetween(breweries.get(position - 1), breweries.get(position));
+    final double totalDistance = distance() + distFrom + distTo - oldFrom;
+
+    if (totalDistance > TRAVEL_DISTANCE) {
+      return OptionalDouble.empty();
+    }
+    return OptionalDouble.of((beerCount() + brewery.getBeerCount()) / totalDistance);
+  }
+
+  public Optional<String> isValid() {
+    if (breweries.get(0) != ORIGIN) {
+      return of("ERROR: Start brewery must be HOME! " + breweries.get(0));
+    }
+    if (lastBrewery() != ORIGIN) {
+      return of("ERROR: End brewery must be HOME! " + lastBrewery());
+    }
+    if (distance() > TRAVEL_DISTANCE) {
+      return of(format("ERROR: Travel distance cannot exceed %.0f!", TRAVEL_DISTANCE));
+    }
+
+    return breweries().stream()
+        .filter(brewery -> !Objects.equals(ORIGIN, brewery))
+        .collect(groupingBy(Brewery::getID, counting()))
+        .entrySet().stream()
+        .filter(entry -> entry.getValue() > 1)
+        .findFirst()
+        .map(entry -> format("ERROR: Tour contains duplicate brewery: [%d]!", entry.getKey()));
   }
 
   @Override
   public String toString() {
     final StringBuilder sb = new StringBuilder();
-    sb.append(String.format("Visited %s breweries", breweriesCount()));
+    sb.append(format("Visited %s breweries", breweriesCount()));
     for (int i = 0; i < breweries.size(); i++) {
       double distBetween = 0;
       if (i != 0) {
-        distBetween = BreweryManager.distanceBetween(getBrewery(i - 1), getBrewery(i));
+        distBetween = distanceBetween(getBrewery(i - 1), getBrewery(i));
       }
       sb.append(System.lineSeparator())
-          .append(String.format("\t%s distance %.1fkm", breweries.get(i), distBetween));
+          .append(format("\t%s distance %.1fkm", breweries.get(i), distBetween));
     }
     sb.append(System.lineSeparator());
-    sb.append(String.format("Total distance travelled: %.1fkm", distance()));
+    sb.append(format("Total distance travelled: %.1fkm", distance()));
     sb.append(System.lineSeparator());
     sb.append(System.lineSeparator());
-    sb.append(String.format("Collected %s beer types:", beerCount()));
+    sb.append(format("Collected %s beer types:", beerCount()));
     breweries.stream()
         .map(Brewery::getBeerList)
         .filter(Objects::nonNull)
