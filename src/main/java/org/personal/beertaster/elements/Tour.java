@@ -1,7 +1,9 @@
 package org.personal.beertaster.elements;
 
 import static java.lang.String.format;
+import static java.util.Optional.empty;
 import static java.util.Optional.of;
+import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.counting;
 import static java.util.stream.Collectors.groupingBy;
 import static org.personal.beertaster.main.BreweryManager.*;
@@ -10,7 +12,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.OptionalDouble;
 import java.util.stream.IntStream;
 
 public class Tour {
@@ -104,7 +105,7 @@ public class Tour {
   }
 
   public double cost() {
-    return beerCount() / distance();
+    return distance() == 0 ? 0 : beerCount() / distance();
   }
 
   public long breweriesCount() {
@@ -144,18 +145,31 @@ public class Tour {
     return totalDistance <= TRAVEL_DISTANCE;
   }
 
-  public OptionalDouble estimatedCost(final Brewery brewery, final int position) {
-    final double distFrom = distanceBetween(breweries.get(position - 1), brewery);
-    final double distTo = position < tourSize() ?
-        distanceBetween(breweries.get(position), brewery) :
-        distanceToOrigin(brewery);
-    final double oldFrom = distanceBetween(breweries.get(position - 1), breweries.get(position));
-    final double totalDistance = distance() + distFrom + distTo - oldFrom;
-
-    if (totalDistance > TRAVEL_DISTANCE) {
-      return OptionalDouble.empty();
+  public Optional<Integer> bestInsertion(final Brewery brewery) {
+    if (Math.abs(distance() - TRAVEL_DISTANCE) < 0.001) {
+      return empty();
     }
-    return OptionalDouble.of((beerCount() + brewery.getBeerCount()) / totalDistance);
+
+    Integer bestPosition = null;
+    double bestCost = 0;
+    double distFrom = distanceToOrigin(brewery);
+    for (int i = 1; i < breweries.size(); i++) {
+      final double distTo = distanceBetween(brewery, breweries.get(i));
+      final double oldFrom = distanceBetween(breweries.get(i - 1), breweries.get(i));
+      final double totalDistance = distance() + distFrom + distTo - oldFrom;
+      distFrom = distTo;
+
+      if (totalDistance > TRAVEL_DISTANCE) {
+        continue;
+      }
+      final double cost = (beerCount() + brewery.getBeerCount()) / totalDistance;
+      if (cost > bestCost) {
+        bestCost = cost;
+        bestPosition = i;
+      }
+    }
+
+    return ofNullable(bestPosition);
   }
 
   public Optional<String> isValid() {

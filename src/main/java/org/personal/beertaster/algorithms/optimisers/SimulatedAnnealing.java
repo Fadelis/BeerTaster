@@ -75,8 +75,8 @@ public class SimulatedAnnealing implements Optimiser {
 
   private void swap(final Tour tour) {
     // Get a random positions in the tour
-    final int tourPos1 = rnd.nextInt(tour.tourSize() - 1) + 1;
-    final int tourPos2 = rnd.nextInt(tour.tourSize() - 1) + 1;
+    final int tourPos1 = rnd.nextInt(tour.tourSize() - 2) + 1;
+    final int tourPos2 = rnd.nextInt(tour.tourSize() - 2) + 1;
 
     // Get the cities at selected positions in the tour
     final Brewery citySwap1 = tour.getBrewery(tourPos1);

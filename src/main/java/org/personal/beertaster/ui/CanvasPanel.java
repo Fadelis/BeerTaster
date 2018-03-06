@@ -74,6 +74,9 @@ public class CanvasPanel extends Pane {
 
   public void setupRoute(final Tour tour) {
     route.clear();
+    circles.stream()
+        .filter(BreweryCircle::isVisited)
+        .forEach(BreweryCircle::setVisitable);
 
     BreweryCircle current = null;
     for (int i = 0; i < tour.breweries().size(); i++) {

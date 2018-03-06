@@ -29,9 +29,7 @@ public class SimpleRouter implements Router {
     final Tour initialRoute = new Tour().withBrewery(ORIGIN);
 
     return getPossibleBreweries().parallelStream()
-        //.sorted(comparing(BreweryManager::distanceToOrigin))
-        .sorted(
-            comparing(brewery -> distanceToOrigin(brewery) / brewery.getBeerCount()))
+        .sorted(comparing(brewery -> distanceToOrigin(brewery) / brewery.getBeerCount()))
         .limit(NUMBER_OF_FIRST_POINTS)
         .map(initialRoute::withBrewery)
         .map(this::fillRoute)

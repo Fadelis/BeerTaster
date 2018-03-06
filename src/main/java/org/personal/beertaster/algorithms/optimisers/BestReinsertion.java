@@ -6,7 +6,6 @@ import static org.personal.beertaster.main.BreweryManager.*;
 import java.util.AbstractMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.IntStream;
 import org.personal.beertaster.algorithms.Optimiser;
 import org.personal.beertaster.elements.Brewery;
 import org.personal.beertaster.elements.Tour;
@@ -45,10 +44,8 @@ public class BestReinsertion implements Optimiser {
             best.breweries().stream()
                 .mapToDouble(visitedBrew -> distanceBetween(visitedBrew, brew))
                 .min().orElse(TRAVEL_DISTANCE)
-            //.sorted().limit(2).sum()
         )).filter(brew -> brew.getValue() <= remainingDistance)
         .sorted(comparing(Map.Entry::getValue))
-        //.sorted(Comparator.comparing(brew -> brew.getValue() / brew.getKey().beerCount()))
         .map(Map.Entry::getKey)
         .reduce(new Tour(best), this::bestInsertion, (tour1, tour2) -> tour1);
 
@@ -64,8 +61,7 @@ public class BestReinsertion implements Optimiser {
     final Tour slicedTour = new Tour(currentTour);
     slicedTour.removeBrewery(brewery);
 
-    return IntStream.range(1, slicedTour.breweries().size() - 1).boxed()
-        .max(comparing(position -> slicedTour.estimatedCost(brewery, position).orElse(0D)))
+    return slicedTour.bestInsertion(brewery)
         .map(position -> slicedTour.insertAt(brewery, position))
         .filter(currentTour::isBetter)
         .orElse(currentTour);

@@ -12,6 +12,8 @@ import org.personal.beertaster.algorithms.optimisers.BestReinsertion;
 import org.personal.beertaster.algorithms.optimisers.LargeNeighbourhoodSearch;
 import org.personal.beertaster.algorithms.optimisers.SimulatedAnnealing;
 import org.personal.beertaster.algorithms.routers.BruteForceRouter;
+import org.personal.beertaster.algorithms.routers.ClusterRouter;
+import org.personal.beertaster.algorithms.routers.EmptyRouter;
 import org.personal.beertaster.algorithms.routers.LookAheadRouter;
 import org.personal.beertaster.algorithms.routers.SimpleOptimisedRouter;
 import org.personal.beertaster.algorithms.routers.SimpleRouter;
@@ -28,8 +30,10 @@ public class MainPane extends BorderPane {
   private static final List<Router> ROUTERS = Arrays.asList(
       new SimpleRouter(),
       new SimpleOptimisedRouter(),
+      new ClusterRouter(),
       new LookAheadRouter(),
-      new BruteForceRouter()
+      new BruteForceRouter(),
+      new EmptyRouter()
   );
   private static final List<Optimiser> OPTIMISERS = Arrays.asList(
       new BestReinsertion(),
